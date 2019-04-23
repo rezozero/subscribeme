@@ -73,7 +73,7 @@ class MailjetSubscriber extends AbstractSubscriber
                 }
             }
         } catch (RequestException $exception) {
-            throw new CannotSubscribeException($exception);
+            throw new CannotSubscribeException($exception->getMessage(), $exception);
         }
 
         return false;

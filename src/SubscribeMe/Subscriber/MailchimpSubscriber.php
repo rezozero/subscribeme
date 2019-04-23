@@ -69,11 +69,13 @@ class MailchimpSubscriber extends AbstractSubscriber
         $body = [
             'status' => $this->statusWhenSubscribed,
             'email_address' => $email,
-            'merge_fields' => $options,
-            'marketing_permissions' => [],
         ];
+        if (count($options) > 0) {
+            $body['merge_fields'] = $options;
+        }
 
         if (count($userConsents) > 0) {
+            $body['marketing_permissions'] = [];
             foreach ($userConsents as $consent) {
                 if (!($consent instanceof UserConsent)) {
                     throw new \InvalidArgumentException('User consent is not valid UserConsent object');
@@ -117,9 +119,9 @@ class MailchimpSubscriber extends AbstractSubscriber
                 }
             }
 
-            throw new CannotSubscribeException($exception);
+            throw new CannotSubscribeException($exception->getMessage(), $exception);
         } catch (RequestException $exception) {
-            throw new CannotSubscribeException($exception);
+            throw new CannotSubscribeException($exception->getMessage(), $exception);
         }
 
         return false;
