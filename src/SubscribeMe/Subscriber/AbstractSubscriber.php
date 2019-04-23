@@ -15,6 +15,12 @@ abstract class AbstractSubscriber implements SubscriberInterface
 {
     /** @var Client */
     private $client;
+    /** @var string */
+    private $apiKey;
+    /** @var string */
+    private $apiSecret;
+    /** @var string */
+    private $contactListId;
 
     /**
      * AbstractSubscriber constructor.
@@ -32,5 +38,65 @@ abstract class AbstractSubscriber implements SubscriberInterface
     protected function getClient(): Client
     {
         return $this->client;
+    }
+
+    /**
+     * @return string
+     */
+    public function getApiKey(): ?string
+    {
+        return $this->apiKey;
+    }
+
+    /**
+     * @param string $apiKey
+     *
+     * @return SubscriberInterface
+     */
+    public function setApiKey(?string $apiKey): SubscriberInterface
+    {
+        $this->apiKey = $apiKey;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getApiSecret(): ?string
+    {
+        return $this->apiSecret;
+    }
+
+    /**
+     * @param string $apiSecret
+     *
+     * @return SubscriberInterface
+     */
+    public function setApiSecret(?string $apiSecret): SubscriberInterface
+    {
+        $this->apiSecret = $apiSecret;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContactListId(): ?string
+    {
+        return $this->contactListId;
+    }
+
+    /**
+     * @param string $contactListId
+     *
+     * @return SubscriberInterface
+     */
+    public function setContactListId(?string $contactListId): SubscriberInterface
+    {
+        $this->contactListId = $contactListId;
+
+        return $this;
     }
 }

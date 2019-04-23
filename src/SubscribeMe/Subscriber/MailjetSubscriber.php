@@ -14,73 +14,6 @@ use SubscribeMe\Exception\CannotSubscribeException;
 
 class MailjetSubscriber extends AbstractSubscriber
 {
-    /** @var string */
-    private $apiKey;
-    /** @var string */
-    private $apiSecret;
-    /** @var string */
-    private $contactListId;
-
-    /**
-     * @return string
-     */
-    public function getApiKey(): string
-    {
-        return $this->apiKey;
-    }
-
-    /**
-     * @param string $apiKey
-     *
-     * @return MailjetSubscriber
-     */
-    public function setApiKey(string $apiKey): MailjetSubscriber
-    {
-        $this->apiKey = $apiKey;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getApiSecret(): string
-    {
-        return $this->apiSecret;
-    }
-
-    /**
-     * @param string $apiSecret
-     *
-     * @return MailjetSubscriber
-     */
-    public function setApiSecret(string $apiSecret): MailjetSubscriber
-    {
-        $this->apiSecret = $apiSecret;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getContactListId(): string
-    {
-        return $this->contactListId;
-    }
-
-    /**
-     * @param string $contactListId
-     *
-     * @return MailjetSubscriber
-     */
-    public function setContactListId(string $contactListId): MailjetSubscriber
-    {
-        $this->contactListId = $contactListId;
-
-        return $this;
-    }
-
     public function getPlatform(): string
     {
         return 'mailjet';
@@ -93,24 +26,24 @@ class MailjetSubscriber extends AbstractSubscriber
             $name = $options['Name'];
             unset($options['Name']);
         }
-        $uri = 'https://api.mailjet.com/v3/REST/contactslist/' . $this->contactListId . '/managecontact';
+        $uri = 'https://api.mailjet.com/v3/REST/contactslist/' . $this->getContactListId() . '/managecontact';
         try {
             $res = $this->getClient()->request('POST', $uri, [
                 'http_errors' => true,
-                'auth' => [$this->apiKey, $this->apiSecret],
+                'auth' => [$this->getApiKey(), $this->getApiSecret()],
                 'headers' => [
                     'Content-Type' => 'application/json',
                 ],
-                'body' => [
+                'body' => json_encode([
                     'Action' => 'addnoforce',
                     'Email' => $email,
                     'Name' => $name,
                     'Properties' => $options,
-                ]
+                ])
             ]);
 
             if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201) {
-                $body = json_decode($res->getBody(), true);
+                $body = json_decode($res->getBody()->getContents(), true);
                 if ($body['Total'] >= 1) {
                     return $body['Data'][0]['ContactID'];
                 }

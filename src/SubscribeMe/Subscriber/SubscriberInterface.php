@@ -16,6 +16,12 @@ interface SubscriberInterface
      */
     public function getPlatform(): string;
 
+    public function setApiSecret(?string $apiSecret): SubscriberInterface;
+
+    public function setApiKey(?string $apiKey): SubscriberInterface;
+
+    public function setContactListId(?string $contactListId): SubscriberInterface;
+
     /**
      * @param string $email
      * @param array  $options
