@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace SubscribeMe;
 
 use GuzzleHttp\Client;
+use SubscribeMe\Subscriber\MailchimpSubscriber;
 use SubscribeMe\Subscriber\MailjetSubscriber;
 use SubscribeMe\Subscriber\SubscriberInterface;
 
@@ -25,6 +26,8 @@ class Factory
         switch (strtolower($platform)) {
             case 'mailjet':
                 return new MailjetSubscriber(new Client());
+            case 'mailchimp':
+                return new MailchimpSubscriber(new Client());
         }
         throw new \InvalidArgumentException('No subscriber class found for ' . $platform);
     }

@@ -4,6 +4,7 @@ Simple mailing-list subscriber factory.
 ## Supported platforms
 
 - Mailjet
+- Mailchimp
 
 ## Usage
 
@@ -89,3 +90,18 @@ $subscriber->subscribe(
 );
 ```
 
+## Mailchimp options
+
+```php
+$subscriber = \SubscribeMe\Factory::createFor('mailchimp');
+$subscriber->setApiKey('your_username');
+$subscriber->setApiSecret('xxxx');
+$subscriber->setContactListId('xxxx');
+// Set you account datacenter
+$subscriber->setDc('us19');
+// Choose which status your new user will be given
+$subscriber->setSubscribed();
+// or
+$subscriber->setPending();
+
+```
