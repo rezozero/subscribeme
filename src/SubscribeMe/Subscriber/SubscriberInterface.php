@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
+use SubscribeMe\GDPR\UserConsent;
+
 interface SubscriberInterface
 {
     /**
@@ -23,10 +25,11 @@ interface SubscriberInterface
     public function setContactListId(?string $contactListId): SubscriberInterface;
 
     /**
-     * @param string $email
-     * @param array  $options
+     * @param string      $email
+     * @param array       $options
+     * @param UserConsent[] $userConsents
      *
      * @return mixed Contact ID if succeeded or false
      */
-    public function subscribe(string $email, array $options = []);
+    public function subscribe(string $email, array $options, array $userConsents = []);
 }

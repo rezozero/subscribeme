@@ -11,6 +11,7 @@ namespace SubscribeMe\Subscriber;
 
 use GuzzleHttp\Exception\RequestException;
 use SubscribeMe\Exception\CannotSubscribeException;
+use SubscribeMe\GDPR\UserConsent;
 
 class MailjetSubscriber extends AbstractSubscriber
 {
@@ -19,13 +20,41 @@ class MailjetSubscriber extends AbstractSubscriber
         return 'mailjet';
     }
 
-    public function subscribe(string $email, array $options = [])
+    public function subscribe(string $email, array $options, array $userConsents = [])
     {
         $name = null;
         if (isset($options['Name'])) {
             $name = $options['Name'];
             unset($options['Name']);
         }
+        $body = [
+            'Action' => 'addnoforce',
+            'Email' => $email,
+            'Name' => $name,
+            'Properties' => $options,
+        ];
+
+        if (count($userConsents) > 0 && null !== $consent = $userConsents[0]) {
+            if (!($consent instanceof UserConsent)) {
+                throw new \InvalidArgumentException('User consent is not valid UserConsent object');
+            }
+            if (null !== $consent->getConsentFieldName()) {
+                $body['Properties'][$consent->getConsentFieldName()] = $consent->isConsentGiven();
+            }
+            if (null !== $consent->getDateFieldName()) {
+                $body['Properties'][$consent->getDateFieldName()] = $consent->getConsentDate()->format('Y-m-d H:i:s');
+            }
+            if (null !== $consent->getIpAddressFieldName()) {
+                $body['Properties'][$consent->getIpAddressFieldName()] = $consent->getIpAddress();
+            }
+            if (null !== $consent->getReferrerFieldName()) {
+                $body['Properties'][$consent->getReferrerFieldName()] = $consent->getReferrerUrl();
+            }
+            if (null !== $consent->getUsageFieldName()) {
+                $body['Properties'][$consent->getUsageFieldName()] = $consent->getUsage();
+            }
+        }
+
         $uri = 'https://api.mailjet.com/v3/REST/contactslist/' . $this->getContactListId() . '/managecontact';
         try {
             $res = $this->getClient()->request('POST', $uri, [
@@ -34,12 +63,7 @@ class MailjetSubscriber extends AbstractSubscriber
                 'headers' => [
                     'Content-Type' => 'application/json',
                 ],
-                'body' => json_encode([
-                    'Action' => 'addnoforce',
-                    'Email' => $email,
-                    'Name' => $name,
-                    'Properties' => $options,
-                ])
+                'body' => json_encode($body)
             ]);
 
             if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201) {
