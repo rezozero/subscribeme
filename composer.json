@@ -1,0 +1,22 @@
+{
+    "name": "rezozero/subscribeme",
+    "description": "Simple Mailing-list subscriber factory.",
+    "type": "library",
+    "require": {
+        "php":">=7.1",
+        "guzzlehttp/guzzle": "^6.3",
+        "ext-json": "*"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ambroise Maupate",
+            "email": "ambroise@rezo-zero.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "SubscribeMe\\": "src/"
+        }
+    }
+}
