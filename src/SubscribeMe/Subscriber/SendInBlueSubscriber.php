@@ -19,11 +19,17 @@ class SendInBlueSubscriber extends AbstractSubscriber
     {
         $body = [
             'email' => $email,
-            'attributes' => $options,
             'listIds' => [$this->getContactListId()]
         ];
 
+        if (count($options) > 0) {
+            $body['attributes'] = $options;
+        }
+
         if (count($userConsents) > 0 && null !== $consent = $userConsents[0]) {
+            if (!isset($body['attributes'])) {
+                $body['attributes'] = [];
+            }
             if (!($consent instanceof UserConsent)) {
                 throw new \InvalidArgumentException('User consent is not valid UserConsent object');
             }
@@ -80,7 +86,7 @@ class SendInBlueSubscriber extends AbstractSubscriber
                 }
             }
             throw new CannotSubscribeException($exception->getMessage(), $exception);
-        }catch (RequestException $exception) {
+        } catch (RequestException $exception) {
             throw new CannotSubscribeException($exception->getMessage(), $exception);
         }
 
