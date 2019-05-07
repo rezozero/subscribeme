@@ -12,6 +12,7 @@ namespace SubscribeMe;
 use GuzzleHttp\Client;
 use SubscribeMe\Subscriber\MailchimpSubscriber;
 use SubscribeMe\Subscriber\MailjetSubscriber;
+use SubscribeMe\Subscriber\SendInBlueSubscriber;
 use SubscribeMe\Subscriber\SubscriberInterface;
 
 class Factory
@@ -28,6 +29,8 @@ class Factory
                 return new MailjetSubscriber(new Client());
             case 'mailchimp':
                 return new MailchimpSubscriber(new Client());
+            case 'sendinblue':
+                return new SendInBlueSubscriber(new Client());
         }
         throw new \InvalidArgumentException('No subscriber class found for ' . $platform);
     }

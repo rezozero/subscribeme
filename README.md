@@ -5,6 +5,7 @@ Simple mailing-list subscriber factory.
 
 - Mailjet
 - Mailchimp
+- SendInBlue
 
 ## Usage
 
