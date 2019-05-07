@@ -19,7 +19,7 @@ class SendInBlueSubscriber extends AbstractSubscriber
     {
         $body = [
             'email' => $email,
-            'listIds' => [$this->getContactListId()]
+            'listIds' => [(int) $this->getContactListId()]
         ];
 
         if (count($options) > 0) {
