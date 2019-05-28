@@ -27,7 +27,7 @@ class Factory
     {
         $client = new Client([
             'headers' => [
-                'x-powered-by' => 'rezozero/subscribeme'
+                'User-Agent' => 'rezozero/subscribeme'
             ]
         ]);
         switch (strtolower($platform)) {

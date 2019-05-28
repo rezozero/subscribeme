@@ -45,7 +45,7 @@ final class YmlpSubscriber extends AbstractSubscriber
 
     public function subscribe(string $email, array $options, array $userConsents = [])
     {
-        $query = [
+        $params = [
             'Key' => $this->getApiSecret(),
             'Username' => $this->getApiKey(),
             'OverruleUnsubscribedBounced' => $this->overruleUnsubscribedBounced,
@@ -62,7 +62,7 @@ final class YmlpSubscriber extends AbstractSubscriber
          * https://www.ymlp.com/api/Fields.GetList?Key=api_key&Username=username
          */
         if (count($options) > 0) {
-            $query = array_merge($query, $options);
+            $params = array_merge($params, $options);
         }
 
         if (count($userConsents) > 0 && null !== $consent = $userConsents[0]) {
@@ -70,27 +70,27 @@ final class YmlpSubscriber extends AbstractSubscriber
                 throw new \InvalidArgumentException('User consent is not valid UserConsent object');
             }
             if (null !== $consent->getConsentFieldName()) {
-                $query[$consent->getConsentFieldName()] = $consent->isConsentGiven();
+                $params[$consent->getConsentFieldName()] = $consent->isConsentGiven();
             }
             if (null !== $consent->getDateFieldName()) {
-                $query[$consent->getDateFieldName()] = $consent->getConsentDate()->format('Y-m-d H:i:s');
+                $params[$consent->getDateFieldName()] = $consent->getConsentDate()->format('Y-m-d H:i:s');
             }
             if (null !== $consent->getIpAddressFieldName()) {
-                $query[$consent->getIpAddressFieldName()] = $consent->getIpAddress();
+                $params[$consent->getIpAddressFieldName()] = $consent->getIpAddress();
             }
             if (null !== $consent->getReferrerFieldName()) {
-                $query[$consent->getReferrerFieldName()] = $consent->getReferrerUrl();
+                $params[$consent->getReferrerFieldName()] = $consent->getReferrerUrl();
             }
             if (null !== $consent->getUsageFieldName()) {
-                $query[$consent->getUsageFieldName()] = $consent->getUsage();
+                $params[$consent->getUsageFieldName()] = $consent->getUsage();
             }
         }
 
         $uri = 'https://www.ymlp.com/api/Contacts.Add';
         try {
-            $res = $this->getClient()->request('GET', $uri, [
+            $res = $this->getClient()->request('POST', $uri, [
                 'http_errors' => true,
-                'query' => $query
+                'form_params' => $params
             ]);
 
             if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201) {
