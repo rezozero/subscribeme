@@ -6,6 +6,7 @@ Simple mailing-list subscriber factory.
 - Mailjet
 - Mailchimp
 - SendInBlue
+- YMLP
 
 ## Usage
 
@@ -104,5 +105,20 @@ $subscriber->setDc('us19');
 $subscriber->setSubscribed();
 // or
 $subscriber->setPending();
-
 ```
+
+## YMLP options
+
+See https://www.ymlp.com/app/api_command.php?command=Contacts.Add
+
+```php
+$subscriber = \SubscribeMe\Factory::createFor('ymlp');
+$subscriber->setApiKey('your_username');
+$subscriber->setApiSecret('your_api_key');
+$subscriber->setContactListId('your_group_id');
+// if true the email address will be added even if this person previously 
+// unsubscribed or if the email address previously was removed by bounce back handling
+$subscriber->setOverruleUnsubscribedBounced(true);
+```
+
+For getting your additional fields ID: see https://www.ymlp.com/api/Fields.GetList?Key=api_key&Username=username

@@ -13,6 +13,7 @@ use GuzzleHttp\Client;
 use SubscribeMe\Subscriber\MailchimpSubscriber;
 use SubscribeMe\Subscriber\MailjetSubscriber;
 use SubscribeMe\Subscriber\SendInBlueSubscriber;
+use SubscribeMe\Subscriber\YmlpSubscriber;
 use SubscribeMe\Subscriber\SubscriberInterface;
 
 class Factory
@@ -24,13 +25,20 @@ class Factory
      */
     public static function createFor(string $platform): SubscriberInterface
     {
+        $client = new Client([
+            'headers' => [
+                'x-powered-by' => 'rezozero/subscribeme'
+            ]
+        ]);
         switch (strtolower($platform)) {
             case 'mailjet':
-                return new MailjetSubscriber(new Client());
+                return new MailjetSubscriber($client);
             case 'mailchimp':
-                return new MailchimpSubscriber(new Client());
+                return new MailchimpSubscriber($client);
             case 'sendinblue':
-                return new SendInBlueSubscriber(new Client());
+                return new SendInBlueSubscriber($client);
+            case 'ymlp':
+                return new YmlpSubscriber($client);
         }
         throw new \InvalidArgumentException('No subscriber class found for ' . $platform);
     }
