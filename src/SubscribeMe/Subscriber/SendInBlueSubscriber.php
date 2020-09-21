@@ -17,9 +17,26 @@ class SendInBlueSubscriber extends AbstractSubscriber
 
     public function subscribe(string $email, array $options, array $userConsents = [])
     {
+        if (null === $this->getContactListId()) {
+            throw new CannotSubscribeException('You must add a contact list ID before subscribing user.');
+        }
+
+        /*
+         * SendInBlue supports multiple lists subscriptions
+         * just use comma-separated ids.
+         */
+        $listIds = array_map(function (string $listId) {
+            return (int) (trim($listId));
+        }, array_filter(explode(',', trim($this->getContactListId()))));
+
+        if (count($listIds) < 1) {
+            throw new CannotSubscribeException('You must add at least one contact list ID before subscribing user.');
+        }
+
         $body = [
+            'updateEnabled' => true,
             'email' => $email,
-            'listIds' => [(int) $this->getContactListId()]
+            'listIds' => $listIds
         ];
 
         if (count($options) > 0) {
@@ -36,7 +53,7 @@ class SendInBlueSubscriber extends AbstractSubscriber
             if (null !== $consent->getConsentFieldName()) {
                 $body['attributes'][$consent->getConsentFieldName()] = $consent->isConsentGiven();
             }
-            if (null !== $consent->getDateFieldName()) {
+            if (null !== $consent->getDateFieldName() && null !== $consent->getConsentDate()) {
                 $body['attributes'][$consent->getDateFieldName()] = $consent->getConsentDate()->format('Y-m-d H:i:s');
             }
             if (null !== $consent->getIpAddressFieldName()) {

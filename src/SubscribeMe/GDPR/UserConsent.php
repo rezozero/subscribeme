@@ -11,15 +11,15 @@ namespace SubscribeMe\GDPR;
 
 class UserConsent
 {
-    /** @var string */
+    /** @var string|null */
     private $referrerUrl;
     /** @var boolean */
     private $consentGiven = false;
-    /** @var string */
+    /** @var string|null */
     private $ipAddress;
-    /** @var \DateTime */
+    /** @var \DateTime|null */
     private $consentDate;
-    /** @var string */
+    /** @var string|null */
     private $usage;
     /** @var string|null */
     private $usageFieldName = 'gdpr_consent_usage';
@@ -41,7 +41,7 @@ class UserConsent
     }
 
     /**
-     * @param string $referrerUrl
+     * @param string|null $referrerUrl
      *
      * @return UserConsent
      */
@@ -81,7 +81,7 @@ class UserConsent
     }
 
     /**
-     * @param string $ipAddress
+     * @param string|null $ipAddress
      *
      * @return UserConsent
      */
@@ -101,7 +101,7 @@ class UserConsent
     }
 
     /**
-     * @param \DateTime $consentDate
+     * @param \DateTime|null $consentDate
      *
      * @return UserConsent
      */
@@ -121,7 +121,7 @@ class UserConsent
     }
 
     /**
-     * @param string $usage
+     * @param string|null $usage
      *
      * @return UserConsent
      */

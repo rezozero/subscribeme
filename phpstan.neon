@@ -1,0 +1,6 @@
+parameters:
+    excludes_analyse:
+        - */static/*
+    ignoreErrors:
+    reportUnmatchedIgnoredErrors: false
+    checkMissingIterableValueType: false

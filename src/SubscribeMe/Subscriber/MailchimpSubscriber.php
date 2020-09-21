@@ -16,8 +16,13 @@ use SubscribeMe\GDPR\UserConsent;
 
 class MailchimpSubscriber extends AbstractSubscriber
 {
-    /** @var string  */
+    /**
+     * @var string
+     */
     private $dc = 'us16';
+    /**
+     * @var string
+     */
     private $statusWhenSubscribed = 'subscribed';
 
     public function getPlatform(): string

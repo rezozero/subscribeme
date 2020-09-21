@@ -16,6 +16,9 @@ use SubscribeMe\GDPR\UserConsent;
 
 final class YmlpSubscriber extends AbstractSubscriber
 {
+    /**
+     * @var bool
+     */
     private $overruleUnsubscribedBounced = false;
 
     /**
@@ -72,7 +75,7 @@ final class YmlpSubscriber extends AbstractSubscriber
             if (null !== $consent->getConsentFieldName()) {
                 $params[$consent->getConsentFieldName()] = $consent->isConsentGiven();
             }
-            if (null !== $consent->getDateFieldName()) {
+            if (null !== $consent->getDateFieldName() && null !== $consent->getConsentDate()) {
                 $params[$consent->getDateFieldName()] = $consent->getConsentDate()->format('Y-m-d H:i:s');
             }
             if (null !== $consent->getIpAddressFieldName()) {

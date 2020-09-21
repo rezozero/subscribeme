@@ -15,11 +15,11 @@ abstract class AbstractSubscriber implements SubscriberInterface
 {
     /** @var Client */
     private $client;
-    /** @var string */
+    /** @var string|null */
     private $apiKey;
-    /** @var string */
+    /** @var string|null */
     private $apiSecret;
-    /** @var string */
+    /** @var string|null */
     private $contactListId;
 
     /**
@@ -49,7 +49,7 @@ abstract class AbstractSubscriber implements SubscriberInterface
     }
 
     /**
-     * @param string $apiKey
+     * @param string|null $apiKey
      *
      * @return SubscriberInterface
      */
@@ -69,7 +69,7 @@ abstract class AbstractSubscriber implements SubscriberInterface
     }
 
     /**
-     * @param string $apiSecret
+     * @param string|null $apiSecret
      *
      * @return SubscriberInterface
      */
@@ -89,7 +89,7 @@ abstract class AbstractSubscriber implements SubscriberInterface
     }
 
     /**
-     * @param string $contactListId
+     * @param string|null $contactListId List ID (may be multiple comma-separated)
      *
      * @return SubscriberInterface
      */

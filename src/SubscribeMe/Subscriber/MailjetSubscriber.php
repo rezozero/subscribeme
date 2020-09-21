@@ -41,7 +41,7 @@ class MailjetSubscriber extends AbstractSubscriber
             if (null !== $consent->getConsentFieldName()) {
                 $body['Properties'][$consent->getConsentFieldName()] = $consent->isConsentGiven();
             }
-            if (null !== $consent->getDateFieldName()) {
+            if (null !== $consent->getDateFieldName() && null !== $consent->getConsentDate()) {
                 $body['Properties'][$consent->getDateFieldName()] = $consent->getConsentDate()->format('Y-m-d H:i:s');
             }
             if (null !== $consent->getIpAddressFieldName()) {
