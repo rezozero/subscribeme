@@ -1,4 +1,7 @@
 # Subscribe me
+
+[![Build Status](https://travis-ci.org/rezozero/subscribeme.svg?branch=master)](https://travis-ci.org/rezozero/subscribeme)
+
 Simple mailing-list subscriber factory.
 
 ## Supported platforms
@@ -122,3 +125,17 @@ $subscriber->setOverruleUnsubscribedBounced(true);
 ```
 
 For getting your additional fields ID: see https://www.ymlp.com/api/Fields.GetList?Key=api_key&Username=username
+
+## SendInBlue options
+
+See https://developers.sendinblue.com/reference#createcontact
+
+```php
+$subscriber = \SubscribeMe\Factory::createFor('sendinblue');
+// SendInBlue only requires an API Key
+$subscriber->setApiKey('sendinblue_api_key');
+// SendInBlue list identifiers are int. You can subscribe user to multiple lists with comma-separated list 
+$subscriber->setContactListId('3,5,3'); 
+```
+
+For getting your additional fields ID: see https://my.sendinblue.com/lists/add-attributes

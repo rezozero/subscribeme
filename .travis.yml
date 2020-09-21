@@ -1,0 +1,16 @@
+language: php
+sudo: required
+php:
+    - 7.1
+    - 7.2
+    - 7.3
+    - 7.4
+    - nightly
+install:
+    - composer install
+script:
+    - php vendor/bin/phpcbf -p
+    - php vendor/bin/phpstan analyse -c phpstan.neon -l max src
+jobs:
+    allow_failures:
+        - php: nightly
