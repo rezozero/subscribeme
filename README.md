@@ -137,6 +137,8 @@ $subscriber = \SubscribeMe\Factory::createFor('sendinblue');
 $subscriber->setApiKey('sendinblue_api_key');
 // SendInBlue list identifiers are int. You can subscribe user to multiple lists with comma-separated list 
 $subscriber->setContactListId('3,5,3'); 
+
+$subscriber->subscribe('hello@super.test', ["FNAME" => "Elly", "LNAME" => "Roger"], [$userConsent]);
 ```
 
 For getting your additional fields ID: see https://my.sendinblue.com/lists/add-attributes
@@ -153,6 +155,6 @@ $subscriber->setApiKey('sendinblue_api_key');
 $subscriber->setContactListId('3,5,3'); 
 $subscriber->setTemplateId(1); 
 $subscriber->setRedirectionUrl('https://www.example.com/subscribed');  
-```
 
-For getting your additional fields ID: see https://my.sendinblue.com/lists/add-attributes
+$subscriber->subscribe('hello@super.test', ["FNAME" => "Elly", "LNAME" => "Roger"], [$userConsent]);
+```
