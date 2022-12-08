@@ -1,10 +1,5 @@
 <?php
-/**
- * subscribeme - MailjetSubscriber.php
- *
- * Initial version by: ambroisemaupate
- * Initial version created on: 2019-04-23
- */
+
 declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
@@ -16,14 +11,8 @@ use SubscribeMe\GDPR\UserConsent;
 
 class MailchimpSubscriber extends AbstractSubscriber
 {
-    /**
-     * @var string
-     */
-    private $dc = 'us16';
-    /**
-     * @var string
-     */
-    private $statusWhenSubscribed = 'subscribed';
+    private string $dc = 'us16';
+    private string $statusWhenSubscribed = 'subscribed';
 
     public function getPlatform(): string
     {
@@ -115,7 +104,7 @@ class MailchimpSubscriber extends AbstractSubscriber
             }
         } catch (ClientException $exception) {
             $res = $exception->getResponse();
-            if (null !== $res && $res->getStatusCode() === 400) {
+            if ($res->getStatusCode() === 400) {
                 /** @var array $body */
                 $body = json_decode($res->getBody()->getContents(), true);
                 if ($body['title'] == 'Member Exists') {

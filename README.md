@@ -9,6 +9,7 @@ Simple mailing-list subscriber factory.
 - Mailjet
 - Mailchimp
 - SendInBlue
+- SendInBlue DOI (Double Opt-In)
 - YMLP
 
 ## Usage
@@ -136,6 +137,22 @@ $subscriber = \SubscribeMe\Factory::createFor('sendinblue');
 $subscriber->setApiKey('sendinblue_api_key');
 // SendInBlue list identifiers are int. You can subscribe user to multiple lists with comma-separated list 
 $subscriber->setContactListId('3,5,3'); 
+```
+
+For getting your additional fields ID: see https://my.sendinblue.com/lists/add-attributes
+
+## SendInBlue Double Opt-In options
+
+See https://developers.sendinblue.com/reference/createdoicontact
+
+```php
+$subscriber = \SubscribeMe\Factory::createFor('sendinblue-doi');
+// SendInBlue only requires an API Key
+$subscriber->setApiKey('sendinblue_api_key');
+// SendInBlue list identifiers are int. You can subscribe user to multiple lists with comma-separated list 
+$subscriber->setContactListId('3,5,3'); 
+$subscriber->setTemplateId(1); 
+$subscriber->setRedirectionUrl('https://www.example.com/subscribed');  
 ```
 
 For getting your additional fields ID: see https://my.sendinblue.com/lists/add-attributes

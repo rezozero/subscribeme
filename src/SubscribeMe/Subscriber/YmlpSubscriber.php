@@ -1,10 +1,5 @@
 <?php
-/**
- * subscribeme
- *
- * Initial version by: ambroisemaupate
- * Initial version created on: 2019-05-28
- */
+
 declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
@@ -14,12 +9,9 @@ use GuzzleHttp\Exception\RequestException;
 use SubscribeMe\Exception\CannotSubscribeException;
 use SubscribeMe\GDPR\UserConsent;
 
-final class YmlpSubscriber extends AbstractSubscriber
+class YmlpSubscriber extends AbstractSubscriber
 {
-    /**
-     * @var bool
-     */
-    private $overruleUnsubscribedBounced = false;
+    private bool $overruleUnsubscribedBounced = false;
 
     /**
      * @return bool
@@ -112,20 +104,18 @@ final class YmlpSubscriber extends AbstractSubscriber
             }
         } catch (ClientException $exception) {
             $res = $exception->getResponse();
-            if (null !== $res) {
-                /** @var array $body */
-                $body = json_decode($res->getBody()->getContents(), true);
-                if (isset($body['Output']) &&
-                    $body['Output'] == 'Email address already in selected groups') {
-                    /*
-                     * Do not throw exception if subscriber already exists
-                     */
-                    return true;
-                }
+            /** @var array $body */
+            $body = json_decode($res->getBody()->getContents(), true);
+            if (isset($body['Output']) &&
+                $body['Output'] == 'Email address already in selected groups') {
+                /*
+                 * Do not throw exception if subscriber already exists
+                 */
+                return true;
+            }
 
-                if (isset($body['Output']) && is_string($body['Output'])) {
-                    throw new CannotSubscribeException($body['Output'], $exception);
-                }
+            if (isset($body['Output']) && is_string($body['Output'])) {
+                throw new CannotSubscribeException($body['Output'], $exception);
             }
             throw new CannotSubscribeException($exception->getMessage(), $exception);
         } catch (RequestException $exception) {

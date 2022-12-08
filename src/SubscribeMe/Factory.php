@@ -1,10 +1,5 @@
 <?php
-/**
- * subscribeme - Factory.php
- *
- * Initial version by: ambroisemaupate
- * Initial version created on: 2019-04-23
- */
+
 declare(strict_types=1);
 
 namespace SubscribeMe;
@@ -12,6 +7,7 @@ namespace SubscribeMe;
 use GuzzleHttp\Client;
 use SubscribeMe\Subscriber\MailchimpSubscriber;
 use SubscribeMe\Subscriber\MailjetSubscriber;
+use SubscribeMe\Subscriber\SendInBlueDoubleOptInSubscriber;
 use SubscribeMe\Subscriber\SendInBlueSubscriber;
 use SubscribeMe\Subscriber\YmlpSubscriber;
 use SubscribeMe\Subscriber\SubscriberInterface;
@@ -37,6 +33,8 @@ class Factory
                 return new MailchimpSubscriber($client);
             case 'sendinblue':
                 return new SendInBlueSubscriber($client);
+            case 'sendinblue-doi':
+                return new SendInBlueDoubleOptInSubscriber($client);
             case 'ymlp':
                 return new YmlpSubscriber($client);
         }

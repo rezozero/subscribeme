@@ -1,10 +1,5 @@
 <?php
-/**
- * subscribeme - AbstractSubscriber.php
- *
- * Initial version by: ambroisemaupate
- * Initial version created on: 2019-04-23
- */
+
 declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
@@ -13,18 +8,12 @@ use GuzzleHttp\Client;
 
 abstract class AbstractSubscriber implements SubscriberInterface
 {
-    /** @var Client */
-    private $client;
-    /** @var string|null */
-    private $apiKey;
-    /** @var string|null */
-    private $apiSecret;
-    /** @var string|null */
-    private $contactListId;
+    private Client $client;
+    private ?string $apiKey = null;
+    private ?string $apiSecret = null;
+    private ?string $contactListId = null;
 
-    /**
-     * AbstractSubscriber constructor.
-     *
+    /***
      * @param Client $client
      */
     public function __construct(Client $client)

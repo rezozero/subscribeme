@@ -1,36 +1,21 @@
 <?php
-/**
- * subscribeme - UserConsent.php
- *
- * Initial version by: ambroisemaupate
- * Initial version created on: 2019-04-23
- */
+
 declare(strict_types=1);
 
 namespace SubscribeMe\GDPR;
 
 class UserConsent
 {
-    /** @var string|null */
-    private $referrerUrl;
-    /** @var boolean */
-    private $consentGiven = false;
-    /** @var string|null */
-    private $ipAddress;
-    /** @var \DateTime|null */
-    private $consentDate;
-    /** @var string|null */
-    private $usage;
-    /** @var string|null */
-    private $usageFieldName = 'gdpr_consent_usage';
-    /** @var string|null */
-    private $referrerFieldName = 'gdpr_consent_referrer';
-    /** @var string|null */
-    private $ipAddressFieldName = 'gdpr_consent_ip';
-    /** @var string|null */
-    private $consentFieldName = 'gdpr_consent';
-    /** @var string|null */
-    private $dateFieldName = 'gdpr_consent_date';
+    private ?string $referrerUrl = null;
+    private bool $consentGiven = false;
+    private ?string $ipAddress = null;
+    private ?\DateTime $consentDate = null;
+    private ?string $usage = null;
+    private ?string $usageFieldName = 'gdpr_consent_usage';
+    private ?string $referrerFieldName = 'gdpr_consent_referrer';
+    private ?string $ipAddressFieldName = 'gdpr_consent_ip';
+    private ?string $consentFieldName = 'gdpr_consent';
+    private ?string $dateFieldName = 'gdpr_consent_date';
 
     /**
      * @return string
