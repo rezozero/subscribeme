@@ -97,6 +97,7 @@ final class YmlpSubscriber extends AbstractSubscriber
             ]);
 
             if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201) {
+                /** @var array $body */
                 $body = json_decode($res->getBody()->getContents(), true);
                 if (isset($body['Code']) && $body['Code'] === '0') {
                     return true;
@@ -105,13 +106,14 @@ final class YmlpSubscriber extends AbstractSubscriber
                      * Do not throw exception if subscriber already exists
                      */
                     return true;
-                } elseif (isset($body['Output'])) {
+                } elseif (isset($body['Output']) && is_string($body['Output'])) {
                     throw new CannotSubscribeException($body['Output']);
                 }
             }
         } catch (ClientException $exception) {
             $res = $exception->getResponse();
             if (null !== $res) {
+                /** @var array $body */
                 $body = json_decode($res->getBody()->getContents(), true);
                 if (isset($body['Output']) &&
                     $body['Output'] == 'Email address already in selected groups') {
@@ -121,7 +123,7 @@ final class YmlpSubscriber extends AbstractSubscriber
                     return true;
                 }
 
-                if (isset($body['Output'])) {
+                if (isset($body['Output']) && is_string($body['Output'])) {
                     throw new CannotSubscribeException($body['Output'], $exception);
                 }
             }

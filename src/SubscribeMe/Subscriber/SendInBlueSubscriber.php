@@ -79,6 +79,7 @@ class SendInBlueSubscriber extends AbstractSubscriber
             ]);
 
             if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201) {
+                /** @var array $body */
                 $body = json_decode($res->getBody()->getContents(), true);
                 if (isset($body['id'])) {
                     return $body['id'];
@@ -87,6 +88,7 @@ class SendInBlueSubscriber extends AbstractSubscriber
         } catch (ClientException $exception) {
             $res = $exception->getResponse();
             if (null !== $res) {
+                /** @var array $body */
                 $body = json_decode($res->getBody()->getContents(), true);
 
                 if ($res->getStatusCode() === 400 &&
@@ -98,7 +100,7 @@ class SendInBlueSubscriber extends AbstractSubscriber
                     return true;
                 }
 
-                if (isset($body['message'])) {
+                if (isset($body['message']) && is_string($body['message'])) {
                     throw new CannotSubscribeException($body['message'], $exception);
                 }
             }

@@ -67,6 +67,7 @@ class MailjetSubscriber extends AbstractSubscriber
             ]);
 
             if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201) {
+                /** @var array $body */
                 $body = json_decode($res->getBody()->getContents(), true);
                 if ($body['Total'] >= 1) {
                     return $body['Data'][0]['ContactID'];

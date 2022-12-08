@@ -109,12 +109,14 @@ class MailchimpSubscriber extends AbstractSubscriber
             ]);
 
             if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201) {
+                /** @var array $body */
                 $body = json_decode($res->getBody()->getContents(), true);
                 return $body['id'];
             }
         } catch (ClientException $exception) {
             $res = $exception->getResponse();
             if (null !== $res && $res->getStatusCode() === 400) {
+                /** @var array $body */
                 $body = json_decode($res->getBody()->getContents(), true);
                 if ($body['title'] == 'Member Exists') {
                     /*
