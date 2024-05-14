@@ -2,6 +2,12 @@
 
 All notable changes to project will be documented in this file.
 
+## [1.2.0](https://github.com/rezozero/subscribeme/compare/1.1.0...1.2.0) - 2024-05-14
+
+### Features
+
+- Aliased SendInBlue subscribers to Brevo - ([372eb54](https://github.com/rezozero/subscribeme/commit/372eb5429472d0550417c04ed44488860e3de498)) - Ambroise Maupate
+
 ## [1.1.0](https://github.com/rezozero/subscribeme/compare/1.0.1...1.1.0) - 2022-12-08
 
 ### Features
