@@ -1,5 +1,7 @@
 # Subscribe me
 
+[![Static analysis and code style](https://github.com/rezozero/subscribeme/actions/workflows/run-test.yml/badge.svg)](https://github.com/rezozero/subscribeme/actions/workflows/run-test.yml)
+
 Simple mailing-list subscriber factory.
 
 ## Supported platforms
