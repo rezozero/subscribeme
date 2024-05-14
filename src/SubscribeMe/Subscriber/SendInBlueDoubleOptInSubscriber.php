@@ -6,6 +6,9 @@ namespace SubscribeMe\Subscriber;
 
 use SubscribeMe\Exception\CannotSubscribeException;
 
+/**
+ * @deprecated Use BrevoDoubleOptInSubscriber instead
+ */
 class SendInBlueDoubleOptInSubscriber extends SendInBlueSubscriber
 {
     private ?int $templateId = null;
@@ -50,7 +53,7 @@ class SendInBlueDoubleOptInSubscriber extends SendInBlueSubscriber
         ];
 
         return $this->doSubscribe(
-            'https://api.sendinblue.com/v3/contacts/doubleOptinConfirmation',
+            'https://api.brevo.com/v3/contacts/doubleOptinConfirmation',
             $body
         );
     }

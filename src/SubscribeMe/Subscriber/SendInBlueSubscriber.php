@@ -10,6 +10,9 @@ use GuzzleHttp\Exception\RequestException;
 use SubscribeMe\Exception\CannotSubscribeException;
 use SubscribeMe\GDPR\UserConsent;
 
+/**
+ * @deprecated Use BrevoSubscriber instead
+ */
 class SendInBlueSubscriber extends AbstractSubscriber
 {
     public function getPlatform(): string
@@ -148,7 +151,7 @@ class SendInBlueSubscriber extends AbstractSubscriber
         ];
 
         return $this->doSubscribe(
-            'https://api.sendinblue.com/v3/contacts',
+            'https://api.brevo.com/v3/contacts',
             $body
         );
     }

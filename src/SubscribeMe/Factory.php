@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace SubscribeMe;
 
 use GuzzleHttp\Client;
+use SubscribeMe\Subscriber\BrevoDoubleOptInSubscriber;
+use SubscribeMe\Subscriber\BrevoSubscriber;
 use SubscribeMe\Subscriber\MailchimpSubscriber;
 use SubscribeMe\Subscriber\MailjetSubscriber;
-use SubscribeMe\Subscriber\SendInBlueDoubleOptInSubscriber;
-use SubscribeMe\Subscriber\SendInBlueSubscriber;
-use SubscribeMe\Subscriber\YmlpSubscriber;
 use SubscribeMe\Subscriber\SubscriberInterface;
+use SubscribeMe\Subscriber\YmlpSubscriber;
 
 class Factory
 {
@@ -32,9 +32,11 @@ class Factory
             case 'mailchimp':
                 return new MailchimpSubscriber($client);
             case 'sendinblue':
-                return new SendInBlueSubscriber($client);
+            case 'brevo':
+                return new BrevoSubscriber($client);
             case 'sendinblue-doi':
-                return new SendInBlueDoubleOptInSubscriber($client);
+            case 'brevo-doi':
+                return new BrevoDoubleOptInSubscriber($client);
             case 'ymlp':
                 return new YmlpSubscriber($client);
         }

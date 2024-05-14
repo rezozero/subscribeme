@@ -1,15 +1,13 @@
 # Subscribe me
 
-[![Build Status](https://travis-ci.org/rezozero/subscribeme.svg?branch=master)](https://travis-ci.org/rezozero/subscribeme)
-
 Simple mailing-list subscriber factory.
 
 ## Supported platforms
 
 - Mailjet
 - Mailchimp
-- SendInBlue
-- SendInBlue DOI (Double Opt-In)
+- Brevo (ex SendInBlue)
+- Brevo DOI (Double Opt-In) (ex SendInBlue)
 - YMLP
 
 ## Usage
@@ -127,31 +125,31 @@ $subscriber->setOverruleUnsubscribedBounced(true);
 
 For getting your additional fields ID: see https://www.ymlp.com/api/Fields.GetList?Key=api_key&Username=username
 
-## SendInBlue options
+## Brevo options
 
-See https://developers.sendinblue.com/reference#createcontact
+See https://developers.brevo.com/reference#createcontact
 
 ```php
-$subscriber = \SubscribeMe\Factory::createFor('sendinblue');
-// SendInBlue only requires an API Key
-$subscriber->setApiKey('sendinblue_api_key');
-// SendInBlue list identifiers are int. You can subscribe user to multiple lists with comma-separated list 
+$subscriber = \SubscribeMe\Factory::createFor('brevo');
+// Brevo only requires an API Key
+$subscriber->setApiKey('brevo_api_key');
+// Brevo list identifiers are int. You can subscribe user to multiple lists with comma-separated list 
 $subscriber->setContactListId('3,5,3'); 
 
 $subscriber->subscribe('hello@super.test', ["FNAME" => "Elly", "LNAME" => "Roger"], [$userConsent]);
 ```
 
-For getting your additional fields ID: see https://my.sendinblue.com/lists/add-attributes
+For getting your additional fields ID: see https://my.brevo.com/lists/add-attributes
 
-## SendInBlue Double Opt-In options
+## Brevo Double Opt-In options
 
-See https://developers.sendinblue.com/reference/createdoicontact
+See https://developers.brevo.com/reference/createdoicontact
 
 ```php
-$subscriber = \SubscribeMe\Factory::createFor('sendinblue-doi');
-// SendInBlue only requires an API Key
-$subscriber->setApiKey('sendinblue_api_key');
-// SendInBlue list identifiers are int. You can subscribe user to multiple lists with comma-separated list 
+$subscriber = \SubscribeMe\Factory::createFor('brevo-doi');
+// Brevo only requires an API Key
+$subscriber->setApiKey('brevo_api_key');
+// Brevo list identifiers are int. You can subscribe user to multiple lists with comma-separated list 
 $subscriber->setContactListId('3,5,3'); 
 $subscriber->setTemplateId(1); 
 $subscriber->setRedirectionUrl('https://www.example.com/subscribed');  

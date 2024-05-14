@@ -1,6 +1,8 @@
 parameters:
+    level: max
+    paths:
+        - src
     excludePaths:
         - */static/*
-    ignoreErrors:
     reportUnmatchedIgnoredErrors: false
     checkMissingIterableValueType: false
