@@ -87,7 +87,6 @@ class MailjetSubscriber extends AbstractSubscriber
      * @param array $variables
      * @param string $templateEmail
      * @return string
-     * @throws ClientExceptionInterface
      */
     public function sendTransactionalEmail(array $emails, array $variables, string $templateEmail): string
     {
@@ -110,9 +109,17 @@ class MailjetSubscriber extends AbstractSubscriber
             throw new \InvalidArgumentException('Template Id missing');
         }
 
+        if (!is_string($this->getApiKey())) {
+            throw new \InvalidArgumentException('ApiKey is not a string');
+        }
+
+        if (!is_string($this->getApiSecret())) {
+            throw new \InvalidArgumentException('ApiSecret is not a string');
+        }
+
         $body = [
             'Messages' => [[
-                'To' => [$recipients],
+                'To' => $recipients,
                 'Variables' => $variables,
                 'TemplateID' => $templateEmail,
                 'TemplateLanguage' => true,

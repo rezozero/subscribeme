@@ -34,7 +34,7 @@ class SendInBlueDoubleOptInSubscriber extends SendInBlueSubscriber
         return $this;
     }
 
-    public function subscribe(string $email, array $options, array $userConsents = [])
+    public function subscribe(string $email, array $options, array $userConsents = []): bool|int
     {
         if (null === $this->templateId) {
             throw new CannotSubscribeException('You must set DOI templateId before subscribing user.');

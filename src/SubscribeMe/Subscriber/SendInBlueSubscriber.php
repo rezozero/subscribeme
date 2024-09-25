@@ -188,7 +188,7 @@ class SendInBlueSubscriber extends AbstractSubscriber
         }, $emails);
 
         $body = [
-            'to' => [$recipients],
+            'to' => $recipients,
             'params' => $variables,
             'templateId' => $templateEmail,
         ];

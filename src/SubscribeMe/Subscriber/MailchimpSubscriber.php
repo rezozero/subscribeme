@@ -112,7 +112,10 @@ class MailchimpSubscriber extends AbstractSubscriber
                      */
                     return true;
                 }
-                return $body['id'];
+                if ($body['id'] !== null) {
+                    return $body['id'];
+                }
+                return false;
             }
         } catch (ClientExceptionInterface $exception) {
             throw new CannotSubscribeException($exception->getMessage(), $exception);
@@ -130,6 +133,7 @@ class MailchimpSubscriber extends AbstractSubscriber
         $recipients = array_map(function (EmailAddress $emailAddress) {
             return [
                 'email' => $emailAddress->getEmail(),
+                'name' => $emailAddress->getName(),
                 'type' => 'to'
             ];
         }, $emails);
@@ -148,9 +152,14 @@ class MailchimpSubscriber extends AbstractSubscriber
 
         try {
             $body = [
-                'to' => [$recipients],
-                'params' => $variables,
-                'templateId' => $templateEmail,
+                'template_name' => $templateEmail,
+                'template_content' => [
+                    'name' => $templateEmail,
+                    'content' => $variables,
+                ],
+                'message' => [
+                    'to' => $recipients,
+                ],
                 'key' => $this->getApiKey(),
             ];
 
