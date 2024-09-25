@@ -135,6 +135,7 @@ class SendInBlueSubscriber extends AbstractSubscriber
     }
 
     /**
+     * @see https://developers.brevo.com/reference/createcontact
      * @param string $email
      * @param array $options
      * @param UserConsent[] $userConsents
@@ -156,6 +157,7 @@ class SendInBlueSubscriber extends AbstractSubscriber
     }
 
     /**
+     * @see https://developers.brevo.com/reference/sendtransacemail
      * @param array<EmailAddress> $emails
      * @param array $variables
      * @param string $templateEmail

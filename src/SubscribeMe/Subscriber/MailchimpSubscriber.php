@@ -58,6 +58,13 @@ class MailchimpSubscriber extends AbstractSubscriber
         return $this;
     }
 
+    /**
+     * @see https://mailchimp.com/developer/marketing/api/list-members/add-member-to-list/
+     * @param string $email
+     * @param array $options
+     * @param array $userConsents
+     * @return bool|int
+     */
     public function subscribe(string $email, array $options, array $userConsents = []): bool|int
     {
         $uri = 'https://' . $this->getDc() . '.api.mailchimp.com/3.0/lists/' . $this->getContactListId() . '/members';
@@ -124,6 +131,13 @@ class MailchimpSubscriber extends AbstractSubscriber
         return false;
     }
 
+    /**
+     * @see https://mailchimp.com/developer/transactional/api/messages/send-using-message-template/
+     * @param array<EmailAddress> $emails
+     * @param array $variables
+     * @param string $templateEmail
+     * @return string
+     */
     public function sendTransactionalEmail(array $emails, array $variables, string $templateEmail): string
     {
         if (empty($emails)) {
@@ -168,7 +182,7 @@ class MailchimpSubscriber extends AbstractSubscriber
             }
             $body = $this->getStreamFactory()->createStream(json_encode($body));
 
-            $url = 'https://mandrillapp.com/api/1.0/messages/send';
+            $url = 'https://mandrillapp.com/api/1.0/messages/send-template';
 
             $request = $this->getRequestFactory()
                 ->createRequest('POST', $url)

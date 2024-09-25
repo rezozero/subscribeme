@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use SubscribeMe\Subscriber\MailchimpSubscriber;
 use SubscribeMe\ValueObject\EmailAddress;
 
-class MailerchimpMailerTestCase extends TestCase
+class MailchimpMailerTestCase extends TestCase
 {
     public function testSubscribe(): void
     {

@@ -8,6 +8,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 use SubscribeMe\Exception\CannotSubscribeException;
 use SubscribeMe\Exception\PlatformNotSupportException;
 use SubscribeMe\GDPR\UserConsent;
+use SubscribeMe\ValueObject\EmailAddress;
 
 class YmlpSubscriber extends AbstractSubscriber
 {
@@ -119,6 +120,12 @@ class YmlpSubscriber extends AbstractSubscriber
         return false;
     }
 
+    /**
+     * @param array<EmailAddress> $emails
+     * @param array $variables
+     * @param string $templateEmail
+     * @return string
+     */
     public function sendTransactionalEmail(array $emails, array $variables, string $templateEmail): string
     {
         throw new PlatformNotSupportException();

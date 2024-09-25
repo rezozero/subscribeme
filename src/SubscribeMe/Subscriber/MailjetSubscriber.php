@@ -17,6 +17,13 @@ class MailjetSubscriber extends AbstractSubscriber
         return 'mailjet';
     }
 
+    /**
+     * @see https://dev.mailjet.com/email/guides/contact-management/#manage-multiple-contacts-in-a-list
+     * @param string $email
+     * @param array $options
+     * @param array $userConsents
+     * @return bool|int
+     */
     public function subscribe(string $email, array $options, array $userConsents = []): bool|int
     {
         $name = null;
@@ -83,6 +90,7 @@ class MailjetSubscriber extends AbstractSubscriber
     }
 
     /**
+     * @see https://dev.mailjet.com/email/guides/send-api-v31/#use-templating-language
      * @param array<EmailAddress> $emails
      * @param array $variables
      * @param string $templateEmail
