@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\RequestException;
+use Psr\Http\Client\ClientExceptionInterface;
+use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Exception\CannotSubscribeException;
 use SubscribeMe\GDPR\UserConsent;
+use SubscribeMe\ValueObject\EmailAddress;
 
 class MailchimpSubscriber extends AbstractSubscriber
 {
@@ -57,7 +58,7 @@ class MailchimpSubscriber extends AbstractSubscriber
         return $this;
     }
 
-    public function subscribe(string $email, array $options, array $userConsents = [])
+    public function subscribe(string $email, array $options, array $userConsents = []): bool|int
     {
         $uri = 'https://' . $this->getDc() . '.api.mailchimp.com/3.0/lists/' . $this->getContactListId() . '/members';
         $body = [
@@ -88,23 +89,21 @@ class MailchimpSubscriber extends AbstractSubscriber
         }
 
         try {
-            $res = $this->getClient()->request('POST', $uri, [
-                'http_errors' => true,
-                'auth' => [$this->getApiKey(), $this->getApiSecret()],
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                ],
-                'body' => json_encode($body)
-            ]);
-
-            if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201) {
-                /** @var array $body */
-                $body = json_decode($res->getBody()->getContents(), true);
-                return $body['id'];
+            if (!is_string(json_encode($body))) {
+                throw new \InvalidArgumentException('Body missing');
             }
-        } catch (ClientException $exception) {
-            $res = $exception->getResponse();
-            if ($res->getStatusCode() === 400) {
+            $bodyStreamed = $this->getStreamFactory()->createStream(json_encode($body));
+
+            $request = $this->getRequestFactory()
+                ->createRequest('POST', $uri)
+                ->withBody($bodyStreamed)
+                ->withAddedHeader('Content-Type', 'application/json')
+                ->withAddedHeader('User-Agent', 'rezozero/subscribeme')
+                ->withAddedHeader('Authorization', 'Basic '.base64_encode(sprintf('%s:%s', $this->getApiKey(), $this->getApiSecret())));
+
+            $res = $this->getClient()->sendRequest($request);
+
+            if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201 || $res->getStatusCode() === 400) {
                 /** @var array $body */
                 $body = json_decode($res->getBody()->getContents(), true);
                 if ($body['title'] == 'Member Exists') {
@@ -113,13 +112,66 @@ class MailchimpSubscriber extends AbstractSubscriber
                      */
                     return true;
                 }
+                return $body['id'];
             }
-
-            throw new CannotSubscribeException($exception->getMessage(), $exception);
-        } catch (RequestException $exception) {
+        } catch (ClientExceptionInterface $exception) {
             throw new CannotSubscribeException($exception->getMessage(), $exception);
         }
 
         return false;
+    }
+
+    public function sendTransactionalEmail(array $emails, array $variables, string $templateEmail): string
+    {
+        if (empty($emails)) {
+            throw new \InvalidArgumentException('Emails information missing');
+        }
+
+        $recipients = array_map(function (EmailAddress $emailAddress) {
+            return [
+                'email' => $emailAddress->getEmail(),
+                'type' => 'to'
+            ];
+        }, $emails);
+
+        if (empty($variables)) {
+            throw new \InvalidArgumentException('Variables missing');
+        }
+
+        if (empty($templateEmail)) {
+            throw new \InvalidArgumentException('Template Id missing');
+        }
+
+        if (!is_string($this->getApiKey())) {
+            throw new \InvalidArgumentException('ApiKey is not a string');
+        }
+
+        try {
+            $body = [
+                'to' => [$recipients],
+                'params' => $variables,
+                'templateId' => $templateEmail,
+                'key' => $this->getApiKey(),
+            ];
+
+            if (!is_string(json_encode($body))) {
+                throw new \InvalidArgumentException('Body missing');
+            }
+            $body = $this->getStreamFactory()->createStream(json_encode($body));
+
+            $url = 'https://mandrillapp.com/api/1.0/messages/send';
+
+            $request = $this->getRequestFactory()
+                ->createRequest('POST', $url)
+                ->withBody($body)
+                ->withAddedHeader('Content-Type', 'application/json')
+                ->withAddedHeader('User-Agent', 'rezozero/subscribeme');
+
+            $response = $this->getClient()->sendRequest($request);
+
+            return $response->getBody()->getContents();
+        } catch (ClientExceptionInterface $exception) {
+            throw new CannotSendTransactionalEmailException($exception);
+        }
     }
 }

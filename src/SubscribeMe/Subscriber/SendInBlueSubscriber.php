@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\RequestException;
+use Psr\Http\Client\ClientExceptionInterface;
 use SubscribeMe\Exception\CannotSubscribeException;
 use SubscribeMe\GDPR\UserConsent;
+use SubscribeMe\ValueObject\EmailAddress;
 
 /**
  * @deprecated Use BrevoSubscriber instead
@@ -85,19 +84,28 @@ class SendInBlueSubscriber extends AbstractSubscriber
      * @param string $uri
      * @param array $body
      * @return bool|int
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    protected function doSubscribe(string $uri, array $body)
+    protected function doSubscribe(string $uri, array $body): bool|int
     {
         try {
-            $res = $this->getClient()->request('POST', $uri, [
-                'http_errors' => true,
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'api-key' => $this->getApiKey(),
-                ],
-                'body' => json_encode($body)
-            ]);
+            if (!is_string(json_encode($body))) {
+                throw new \InvalidArgumentException('Body missing');
+            }
+            if (!is_string($this->getApiKey())) {
+                throw new \InvalidArgumentException('ApiKey is not a string');
+            }
+
+            $bodyStreamed = $this->getStreamFactory()->createStream(json_encode($body));
+
+            $request = $this->getRequestFactory()
+                ->createRequest('POST', $uri)
+                ->withBody($bodyStreamed)
+                ->withAddedHeader('Content-Type', 'application/json')
+                ->withAddedHeader('api-key', $this->getApiKey())
+                ->withAddedHeader('User-Agent', 'rezozero/subscribeme')
+            ;
+
+            $res = $this->getClient()->sendRequest($request);
 
             // https://developers.sendinblue.com/reference/createcontact
             if ($res->getStatusCode() === 200 ||
@@ -110,10 +118,6 @@ class SendInBlueSubscriber extends AbstractSubscriber
                     return (int) $body['id'];
                 }
             }
-        } catch (ClientException $exception) {
-            $res = $exception->getResponse();
-            /** @var array $body */
-            $body = json_decode($res->getBody()->getContents(), true);
 
             if ($res->getStatusCode() === 400 &&
                 isset($body['message']) &&
@@ -123,11 +127,7 @@ class SendInBlueSubscriber extends AbstractSubscriber
                  */
                 return true;
             }
-
-            if (isset($body['message']) && is_string($body['message'])) {
-                throw new CannotSubscribeException($body['message'], $exception);
-            }
-        } catch (RequestException $exception) {
+        } catch (ClientExceptionInterface $exception) {
             throw new CannotSubscribeException($exception->getMessage(), $exception);
         }
 
@@ -139,9 +139,8 @@ class SendInBlueSubscriber extends AbstractSubscriber
      * @param array $options
      * @param UserConsent[] $userConsents
      * @return bool|int Contact ID if succeeded or false
-     * @throws GuzzleException
      */
-    public function subscribe(string $email, array $options, array $userConsents = [])
+    public function subscribe(string $email, array $options, array $userConsents = []): bool|int
     {
         $body = [
             'updateEnabled' => true,
@@ -154,5 +153,62 @@ class SendInBlueSubscriber extends AbstractSubscriber
             'https://api.brevo.com/v3/contacts',
             $body
         );
+    }
+
+    /**
+     * @param array<EmailAddress> $emails
+     * @param array $variables
+     * @param string $templateEmail
+     * @return string
+     * @throws ClientExceptionInterface
+     */
+    public function sendTransactionalEmail(array $emails, array $variables, string $templateEmail): string
+    {
+        if (empty($emails)) {
+            throw new \InvalidArgumentException('Emails information missing');
+        }
+
+        if (empty($variables)) {
+            throw new \InvalidArgumentException('Variables missing');
+        }
+
+        if (empty($templateEmail)) {
+            throw new \InvalidArgumentException('Template Id missing');
+        }
+
+        if (!is_string($this->getApiKey())) {
+            throw new \InvalidArgumentException('ApiKey is not a string');
+        }
+
+        $recipients = array_map(function (EmailAddress $emailAddress) {
+            return [
+                'email' => $emailAddress->getEmail(),
+                'name' => $emailAddress->getName(),
+            ];
+        }, $emails);
+
+        $body = [
+            'to' => [$recipients],
+            'params' => $variables,
+            'templateId' => $templateEmail,
+        ];
+
+        if (!is_string(json_encode($body))) {
+            throw new \InvalidArgumentException('Body missing');
+        }
+        $body = $this->getStreamFactory()->createStream(json_encode($body));
+
+        $url = 'https://api.brevo.com/v3/smtp/email';
+
+        $request = $this->getRequestFactory()
+            ->createRequest('POST', $url)
+            ->withBody($body)
+            ->withAddedHeader('Content-Type', 'application/json')
+            ->withAddedHeader('User-Agent', 'rezozero/subscribeme')
+            ->withAddedHeader('api-key', $this->getApiKey());
+
+        $response = $this->getClient()->sendRequest($request);
+
+        return $response->getBody()->getContents();
     }
 }

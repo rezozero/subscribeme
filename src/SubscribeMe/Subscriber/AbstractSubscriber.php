@@ -4,33 +4,49 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
-use GuzzleHttp\Client;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use SubscribeMe\Interface\SubscriberInterface;
 
 abstract class AbstractSubscriber implements SubscriberInterface
 {
-    private Client $client;
     private ?string $apiKey = null;
     private ?string $apiSecret = null;
     private ?string $contactListId = null;
 
     /***
-     * @param Client $client
+     * @param ClientInterface $client
+     * @param RequestFactoryInterface $requestFactory
+     * @param StreamFactoryInterface $streamFactory
      */
-    public function __construct(Client $client)
-    {
-        $this->client = $client;
+    public function __construct(
+        private ClientInterface $client,
+        private RequestFactoryInterface $requestFactory,
+        private StreamFactoryInterface $streamFactory,
+    ) {
     }
 
     /**
-     * @return Client
+     * @return ClientInterface
      */
-    protected function getClient(): Client
+    protected function getClient(): ClientInterface
     {
         return $this->client;
     }
 
+    public function getRequestFactory(): RequestFactoryInterface
+    {
+        return $this->requestFactory;
+    }
+
+    public function getStreamFactory(): StreamFactoryInterface
+    {
+        return $this->streamFactory;
+    }
+
     /**
-     * @return string
+     * @return string|null
      */
     public function getApiKey(): ?string
     {
@@ -50,7 +66,7 @@ abstract class AbstractSubscriber implements SubscriberInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getApiSecret(): ?string
     {
@@ -70,7 +86,7 @@ abstract class AbstractSubscriber implements SubscriberInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getContactListId(): ?string
     {

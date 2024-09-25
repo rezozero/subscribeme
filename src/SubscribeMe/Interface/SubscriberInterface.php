@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace SubscribeMe\Subscriber;
+namespace SubscribeMe\Interface;
 
 use SubscribeMe\GDPR\UserConsent;
+use SubscribeMe\ValueObject\EmailAddress;
 
 interface SubscriberInterface
 {
@@ -21,7 +22,15 @@ interface SubscriberInterface
      * @param array       $options
      * @param UserConsent[] $userConsents
      *
-     * @return mixed Contact ID if succeeded or false
+     * @return bool|int Contact ID if succeeded or false
      */
-    public function subscribe(string $email, array $options, array $userConsents = []);
+    public function subscribe(string $email, array $options, array $userConsents = []): bool|int;
+
+    /**
+     * @param array<EmailAddress> $emails
+     * @param array $variables
+     * @param string $templateEmail
+     * @return string
+     */
+    public function sendTransactionalEmail(array $emails, array $variables, string $templateEmail): string;
 }

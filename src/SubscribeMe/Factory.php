@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace SubscribeMe;
 
-use GuzzleHttp\Client;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use SubscribeMe\Interface\SubscriberInterface;
 use SubscribeMe\Subscriber\BrevoDoubleOptInSubscriber;
 use SubscribeMe\Subscriber\BrevoSubscriber;
 use SubscribeMe\Subscriber\MailchimpSubscriber;
 use SubscribeMe\Subscriber\MailjetSubscriber;
-use SubscribeMe\Subscriber\SubscriberInterface;
 use SubscribeMe\Subscriber\YmlpSubscriber;
 
 class Factory
@@ -19,26 +21,21 @@ class Factory
      *
      * @return SubscriberInterface
      */
-    public static function createFor(string $platform): SubscriberInterface
+    public static function createFor(string $platform, ClientInterface $client, RequestFactoryInterface $requestFactory, StreamFactoryInterface $streamFactory): SubscriberInterface
     {
-        $client = new Client([
-            'headers' => [
-                'User-Agent' => 'rezozero/subscribeme'
-            ]
-        ]);
         switch (strtolower($platform)) {
             case 'mailjet':
-                return new MailjetSubscriber($client);
+                return new MailjetSubscriber($client, $requestFactory, $streamFactory);
             case 'mailchimp':
-                return new MailchimpSubscriber($client);
+                return new MailchimpSubscriber($client, $requestFactory, $streamFactory);
             case 'sendinblue':
             case 'brevo':
-                return new BrevoSubscriber($client);
+                return new BrevoSubscriber($client, $requestFactory, $streamFactory);
             case 'sendinblue-doi':
             case 'brevo-doi':
-                return new BrevoDoubleOptInSubscriber($client);
+                return new BrevoDoubleOptInSubscriber($client, $requestFactory, $streamFactory);
             case 'ymlp':
-                return new YmlpSubscriber($client);
+                return new YmlpSubscriber($client, $requestFactory, $streamFactory);
         }
         throw new \InvalidArgumentException('No subscriber class found for ' . $platform);
     }
