@@ -6,7 +6,7 @@ namespace SubscribeMe\Exception;
 
 use Throwable;
 
-final class PlatformNotSupportException extends \LogicException
+final class UnsupportedTransactionalEmailPlatformException extends \LogicException
 {
     public function __construct()
     {

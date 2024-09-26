@@ -8,8 +8,11 @@ final class EmailAddress
 {
     public function __construct(
         private string $email,
-        private string $name
+        private ?string $name = null
     ) {
+        if (false === filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+            throw new \InvalidArgumentException('Email is not valid');
+        }
     }
 
     public function getEmail(): string
@@ -17,7 +20,7 @@ final class EmailAddress
         return $this->email;
     }
 
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }

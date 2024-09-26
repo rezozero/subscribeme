@@ -6,7 +6,8 @@ namespace SubscribeMe\Subscriber;
 
 use Psr\Http\Client\ClientExceptionInterface;
 use SubscribeMe\Exception\CannotSubscribeException;
-use SubscribeMe\Exception\PlatformNotSupportException;
+use SubscribeMe\Exception\MissingApiCredentialsException;
+use SubscribeMe\Exception\UnsupportedTransactionalEmailPlatformException;
 use SubscribeMe\GDPR\UserConsent;
 use SubscribeMe\ValueObject\EmailAddress;
 
@@ -39,8 +40,19 @@ class YmlpSubscriber extends AbstractSubscriber
         return 'ymlp';
     }
 
+    /**
+     * @inheritdoc
+     */
     public function subscribe(string $email, array $options, array $userConsents = []): bool|int
     {
+        if (!is_string($this->getApiKey())) {
+            throw new MissingApiCredentialsException();
+        }
+
+        if (!is_string($this->getApiSecret())) {
+            throw new MissingApiCredentialsException();
+        }
+
         $params = [
             'Key' => $this->getApiSecret(),
             'Username' => $this->getApiKey(),
@@ -121,13 +133,10 @@ class YmlpSubscriber extends AbstractSubscriber
     }
 
     /**
-     * @param array<EmailAddress> $emails
-     * @param array $variables
-     * @param string $templateEmail
-     * @return string
+     * @inheritdoc
      */
-    public function sendTransactionalEmail(array $emails, array $variables, string $templateEmail): string
+    public function sendTransactionalEmail(array $emails, string|int $emailTemplateId, array $variables = []): string
     {
-        throw new PlatformNotSupportException();
+        throw new UnsupportedTransactionalEmailPlatformException();
     }
 }

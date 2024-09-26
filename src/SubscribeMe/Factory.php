@@ -7,18 +7,20 @@ namespace SubscribeMe;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use SubscribeMe\Interface\SubscriberInterface;
 use SubscribeMe\Subscriber\BrevoDoubleOptInSubscriber;
 use SubscribeMe\Subscriber\BrevoSubscriber;
 use SubscribeMe\Subscriber\MailchimpSubscriber;
 use SubscribeMe\Subscriber\MailjetSubscriber;
+use SubscribeMe\Subscriber\SubscriberInterface;
 use SubscribeMe\Subscriber\YmlpSubscriber;
 
 class Factory
 {
     /**
      * @param string $platform
-     *
+     * @param ClientInterface $client
+     * @param RequestFactoryInterface $requestFactory
+     * @param StreamFactoryInterface $streamFactory
      * @return SubscriberInterface
      */
     public static function createFor(string $platform, ClientInterface $client, RequestFactoryInterface $requestFactory, StreamFactoryInterface $streamFactory): SubscriberInterface

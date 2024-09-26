@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
+use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
 use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Exception\CannotSubscribeException;
+use SubscribeMe\Exception\MissingApiCredentialsException;
 use SubscribeMe\GDPR\UserConsent;
 use SubscribeMe\ValueObject\EmailAddress;
 
@@ -60,13 +62,18 @@ class MailchimpSubscriber extends AbstractSubscriber
 
     /**
      * @see https://mailchimp.com/developer/marketing/api/list-members/add-member-to-list/
-     * @param string $email
-     * @param array $options
-     * @param array $userConsents
-     * @return bool|int
+     * @inheritdoc
      */
     public function subscribe(string $email, array $options, array $userConsents = []): bool|int
     {
+        if (!is_string($this->getApiKey())) {
+            throw new MissingApiCredentialsException();
+        }
+
+        if (!is_string($this->getApiSecret())) {
+            throw new MissingApiCredentialsException();
+        }
+
         $uri = 'https://' . $this->getDc() . '.api.mailchimp.com/3.0/lists/' . $this->getContactListId() . '/members';
         $body = [
             'status' => $this->statusWhenSubscribed,
@@ -96,10 +103,7 @@ class MailchimpSubscriber extends AbstractSubscriber
         }
 
         try {
-            if (!is_string(json_encode($body))) {
-                throw new \InvalidArgumentException('Body missing');
-            }
-            $bodyStreamed = $this->getStreamFactory()->createStream(json_encode($body));
+            $bodyStreamed = $this->getStreamFactory()->createStream(json_encode($body, JSON_THROW_ON_ERROR));
 
             $request = $this->getRequestFactory()
                 ->createRequest('POST', $uri)
@@ -133,66 +137,57 @@ class MailchimpSubscriber extends AbstractSubscriber
 
     /**
      * @see https://mailchimp.com/developer/transactional/api/messages/send-using-message-template/
-     * @param array<EmailAddress> $emails
-     * @param array $variables
-     * @param string $templateEmail
-     * @return string
+     * @inheritdoc
      */
-    public function sendTransactionalEmail(array $emails, array $variables, string $templateEmail): string
+    public function sendTransactionalEmail(array $emails, string|int $emailTemplateId, array $variables = []): string
     {
         if (empty($emails)) {
             throw new \InvalidArgumentException('Emails information missing');
         }
 
-        $recipients = array_map(function (EmailAddress $emailAddress) {
-            return [
-                'email' => $emailAddress->getEmail(),
-                'name' => $emailAddress->getName(),
-                'type' => 'to'
-            ];
-        }, $emails);
-
-        if (empty($variables)) {
-            throw new \InvalidArgumentException('Variables missing');
-        }
-
-        if (empty($templateEmail)) {
+        if (empty($emailTemplateId)) {
             throw new \InvalidArgumentException('Template Id missing');
         }
 
         if (!is_string($this->getApiKey())) {
-            throw new \InvalidArgumentException('ApiKey is not a string');
+            throw new MissingApiCredentialsException();
         }
 
+        if (!empty($variables)) {
+            $variables = array_map(function ($variable) {
+                return [
+                    'name' => $variable['name'],
+                    'content' => $variable['content'],
+                ];
+            }, $variables);
+        }
+
+        $body = [
+            'template_name' => (string) $emailTemplateId,
+            'template_content' => [],
+            'message' => [
+                'to' => array_map(function (EmailAddress $emailAddress) {
+                    return [
+                        'email' => $emailAddress->getEmail(),
+                        'name' => $emailAddress->getName(),
+                        'type' => 'to'
+                    ];
+                }, $emails),
+                'global_merge_vars' => $variables
+            ],
+            'key' => $this->getApiKey(),
+        ];
+
+        $body = $this->getStreamFactory()->createStream(json_encode($body, JSON_THROW_ON_ERROR));
+
         try {
-            $body = [
-                'template_name' => $templateEmail,
-                'template_content' => [
-                    'name' => $templateEmail,
-                    'content' => $variables,
-                ],
-                'message' => [
-                    'to' => $recipients,
-                ],
-                'key' => $this->getApiKey(),
-            ];
-
-            if (!is_string(json_encode($body))) {
-                throw new \InvalidArgumentException('Body missing');
-            }
-            $body = $this->getStreamFactory()->createStream(json_encode($body));
-
-            $url = 'https://mandrillapp.com/api/1.0/messages/send-template';
-
             $request = $this->getRequestFactory()
-                ->createRequest('POST', $url)
+                ->createRequest('POST', 'https://mandrillapp.com/api/1.0/messages/send-template')
                 ->withBody($body)
                 ->withAddedHeader('Content-Type', 'application/json')
                 ->withAddedHeader('User-Agent', 'rezozero/subscribeme');
 
-            $response = $this->getClient()->sendRequest($request);
-
-            return $response->getBody()->getContents();
+            return $this->getClient()->sendRequest($request)->getBody()->getContents();
         } catch (ClientExceptionInterface $exception) {
             throw new CannotSendTransactionalEmailException($exception);
         }

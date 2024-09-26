@@ -6,23 +6,24 @@ namespace Unit;
 
 use Http\Discovery\Psr17Factory;
 use Http\Mock\Client;
+use JsonException;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Client\ClientExceptionInterface;
+use SubscribeMe\Exception\MissingApiCredentialsException;
 use SubscribeMe\Subscriber\BrevoSubscriber;
 use SubscribeMe\ValueObject\EmailAddress;
 
 class BrevoMailerTestCase extends TestCase
 {
+    /**
+     * @throws JsonException
+     */
     public function testSubscribe(): void
     {
         $client = new Client();
-
         $factory = new Psr17Factory();
-
         $brevoSubscriber = new BrevoSubscriber($client, $factory, $factory);
 
         $email = 'elly@example.com';
-
         $options = [
             'FNAME' => 'Elly',
             'LNAME' => 'Roger',
@@ -57,27 +58,24 @@ class BrevoMailerTestCase extends TestCase
     }
 
     /**
-     * @throws ClientExceptionInterface
+     * @throws JsonException
      */
     public function testSendTransactionalEmail(): void
     {
         $client = new Client();
-
         $factory = new Psr17Factory();
-
         $brevoSubscriber = new BrevoSubscriber($client, $factory, $factory);
 
         $emails[0] = new EmailAddress('jimmy98@example.com', 'Jimmy');
-
         $variables = [
             'FNAME' => 'Joe',
             'LNAME' => 'Doe'
         ];
 
-        $templateEmail = '2';
+        $templateEmail = 2;
 
         $brevoSubscriber->setApiKey('75620ec7-54ea-451d-ad0d-ab4f43f9879c');
-        $brevoSubscriber->sendTransactionalEmail($emails, $variables, $templateEmail);
+        $brevoSubscriber->sendTransactionalEmail($emails, $templateEmail, $variables);
 
         $requests = $client->getRequests();
 
@@ -103,13 +101,16 @@ class BrevoMailerTestCase extends TestCase
         $this->assertEquals('api.brevo.com', $requests[0]->getUri()->getHost());
     }
 
+    /**
+     * @throws JsonException
+     */
     public function testExceptionApiKey(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(MissingApiCredentialsException::class);
         $client = new Client();
         $factory = new Psr17Factory();
         $brevoSubscriber = new BrevoSubscriber($client, $factory, $factory);
         $emails[0] = new EmailAddress('jimmy98@example.com', 'Jimmy');
-        $brevoSubscriber->sendTransactionalEmail($emails, ['FNAME' => 'Joe', 'LNAME' => 'Doe'], '2');
+        $brevoSubscriber->sendTransactionalEmail($emails, 2, ['FNAME' => 'Joe', 'LNAME' => 'Doe']);
     }
 }

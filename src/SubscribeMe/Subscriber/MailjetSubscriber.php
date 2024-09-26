@@ -7,6 +7,7 @@ namespace SubscribeMe\Subscriber;
 use Psr\Http\Client\ClientExceptionInterface;
 use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Exception\CannotSubscribeException;
+use SubscribeMe\Exception\MissingApiCredentialsException;
 use SubscribeMe\GDPR\UserConsent;
 use SubscribeMe\ValueObject\EmailAddress;
 
@@ -19,13 +20,18 @@ class MailjetSubscriber extends AbstractSubscriber
 
     /**
      * @see https://dev.mailjet.com/email/guides/contact-management/#manage-multiple-contacts-in-a-list
-     * @param string $email
-     * @param array $options
-     * @param array $userConsents
-     * @return bool|int
+     * @inheritdoc
      */
     public function subscribe(string $email, array $options, array $userConsents = []): bool|int
     {
+        if (!is_string($this->getApiKey())) {
+            throw new MissingApiCredentialsException();
+        }
+
+        if (!is_string($this->getApiSecret())) {
+            throw new MissingApiCredentialsException();
+        }
+
         $name = null;
         if (isset($options['Name'])) {
             $name = $options['Name'];
@@ -61,10 +67,7 @@ class MailjetSubscriber extends AbstractSubscriber
 
         $uri = 'https://api.mailjet.com/v3/REST/contactslist/' . $this->getContactListId() . '/managecontact';
         try {
-            if (!is_string(json_encode($body))) {
-                throw new \InvalidArgumentException('Body missing');
-            }
-            $bodyStreamed = $this->getStreamFactory()->createStream(json_encode($body));
+            $bodyStreamed = $this->getStreamFactory()->createStream(json_encode($body, JSON_THROW_ON_ERROR));
 
             $request = $this->getRequestFactory()
                 ->createRequest('POST', $uri)
@@ -91,67 +94,51 @@ class MailjetSubscriber extends AbstractSubscriber
 
     /**
      * @see https://dev.mailjet.com/email/guides/send-api-v31/#use-templating-language
-     * @param array<EmailAddress> $emails
-     * @param array $variables
-     * @param string $templateEmail
-     * @return string
+     * @inheritdoc
      */
-    public function sendTransactionalEmail(array $emails, array $variables, string $templateEmail): string
+    public function sendTransactionalEmail(array $emails, string|int $emailTemplateId, array $variables = []): string
     {
-        $recipients = array_map(function (EmailAddress $emailAddress) {
-            return [
-                'email' => $emailAddress->getEmail(),
-                'name' => $emailAddress->getName(),
-            ];
-        }, $emails);
-
         if (empty($emails)) {
             throw new \InvalidArgumentException('Emails information missing');
         }
 
-        if (empty($variables)) {
-            throw new \InvalidArgumentException('Variables missing');
-        }
-
-        if (empty($templateEmail)) {
+        if (empty($emailTemplateId)) {
             throw new \InvalidArgumentException('Template Id missing');
         }
 
         if (!is_string($this->getApiKey())) {
-            throw new \InvalidArgumentException('ApiKey is not a string');
+            throw new MissingApiCredentialsException();
         }
 
         if (!is_string($this->getApiSecret())) {
-            throw new \InvalidArgumentException('ApiSecret is not a string');
+            throw new MissingApiCredentialsException();
         }
 
         $body = [
             'Messages' => [[
-                'To' => $recipients,
+                'To' => array_map(function (EmailAddress $emailAddress) {
+                    return [
+                        'email' => $emailAddress->getEmail(),
+                        'name' => $emailAddress->getName(),
+                    ];
+                }, $emails),
                 'Variables' => $variables,
-                'TemplateID' => $templateEmail,
+                'TemplateID' => (int) $emailTemplateId,
                 'TemplateLanguage' => true,
             ]]
         ];
 
-        if (!is_string(json_encode($body))) {
-            throw new \InvalidArgumentException('Body missing');
-        }
-        $body = $this->getStreamFactory()->createStream(json_encode($body));
-
-        $url = 'https://api.mailjet.com/v3.1/send';
+        $body = $this->getStreamFactory()->createStream(json_encode($body, JSON_THROW_ON_ERROR));
 
         try {
             $request = $this->getRequestFactory()
-                ->createRequest('POST', $url)
+                ->createRequest('POST', 'https://api.mailjet.com/v3.1/send')
                 ->withBody($body)
                 ->withAddedHeader('Content-Type', 'application/json')
                 ->withAddedHeader('User-Agent', 'rezozero/subscribeme')
                 ->withAddedHeader('Authorization', 'Basic ' . base64_encode(sprintf('%s:%s', $this->getApiKey(), $this->getApiSecret())));
 
-            $response = $this->getClient()->sendRequest($request);
-
-            return $response->getBody()->getContents();
+            return $this->getClient()->sendRequest($request)->getBody()->getContents();
         } catch (ClientExceptionInterface $exception) {
             throw new CannotSendTransactionalEmailException($exception);
         }
