@@ -115,8 +115,6 @@ class YmlpSubscriber extends AbstractSubscriber
                      * Do not throw exception if subscriber already exists
                      */
                     return true;
-                } elseif (isset($body['Output']) && is_string($body['Output'])) {
-                    throw new CannotSubscribeException($body['Output']);
                 } elseif (isset($body['Output']) &&
                     $body['Output'] == 'Email address already in selected groups') {
                     /*

@@ -14,30 +14,30 @@ use SubscribeMe\Subscriber\MailjetSubscriber;
 use SubscribeMe\Subscriber\SubscriberInterface;
 use SubscribeMe\Subscriber\YmlpSubscriber;
 
-class Factory
+final class Factory implements SubscriberFactoryInterface
 {
-    /**
-     * @param string $platform
-     * @param ClientInterface $client
-     * @param RequestFactoryInterface $requestFactory
-     * @param StreamFactoryInterface $streamFactory
-     * @return SubscriberInterface
-     */
-    public static function createFor(string $platform, ClientInterface $client, RequestFactoryInterface $requestFactory, StreamFactoryInterface $streamFactory): SubscriberInterface
+    public function __construct(
+        private ClientInterface $client,
+        private RequestFactoryInterface $requestFactory,
+        private StreamFactoryInterface $streamFactory
+    ) {
+    }
+
+    public function createFor(string $platform): SubscriberInterface
     {
         switch (strtolower($platform)) {
             case 'mailjet':
-                return new MailjetSubscriber($client, $requestFactory, $streamFactory);
+                return new MailjetSubscriber($this->client, $this->requestFactory, $this->streamFactory);
             case 'mailchimp':
-                return new MailchimpSubscriber($client, $requestFactory, $streamFactory);
+                return new MailchimpSubscriber($this->client, $this->requestFactory, $this->streamFactory);
             case 'sendinblue':
             case 'brevo':
-                return new BrevoSubscriber($client, $requestFactory, $streamFactory);
+                return new BrevoSubscriber($this->client, $this->requestFactory, $this->streamFactory);
             case 'sendinblue-doi':
             case 'brevo-doi':
-                return new BrevoDoubleOptInSubscriber($client, $requestFactory, $streamFactory);
+                return new BrevoDoubleOptInSubscriber($this->client, $this->requestFactory, $this->streamFactory);
             case 'ymlp':
-                return new YmlpSubscriber($client, $requestFactory, $streamFactory);
+                return new YmlpSubscriber($this->client, $this->requestFactory, $this->streamFactory);
         }
         throw new \InvalidArgumentException('No subscriber class found for ' . $platform);
     }

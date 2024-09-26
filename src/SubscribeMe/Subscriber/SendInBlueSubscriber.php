@@ -108,22 +108,20 @@ class SendInBlueSubscriber extends AbstractSubscriber
             // https://developers.sendinblue.com/reference/createcontact
             if ($res->getStatusCode() === 200 ||
                 $res->getStatusCode() === 201 ||
-                $res->getStatusCode() === 204
+                $res->getStatusCode() === 204 ||
+                $res->getStatusCode() === 400
             ) {
                 /** @var array $body */
                 $body = json_decode($res->getBody()->getContents(), true);
                 if (isset($body['id'])) {
                     return (int) $body['id'];
                 }
-            }
 
-            if ($res->getStatusCode() === 400 &&
-                isset($body['message']) &&
-                $body['message'] == 'Contact already exist') {
-                /*
-                 * Do not throw exception if subscriber already exists
-                 */
-                return true;
+                if ($res->getStatusCode() === 400 &&
+                    isset($body['message']) &&
+                    $body['message'] == 'Contact already exist') {
+                    return true;
+                }
             }
         } catch (ClientExceptionInterface $exception) {
             throw new CannotSubscribeException($exception->getMessage(), $exception);
