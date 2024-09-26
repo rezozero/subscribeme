@@ -6,7 +6,7 @@ namespace SubscribeMe\Subscriber;
 
 use Psr\Http\Client\ClientExceptionInterface;
 use SubscribeMe\Exception\CannotSubscribeException;
-use SubscribeMe\Exception\MissingApiCredentialsException;
+use SubscribeMe\Exception\ApiCredentialsException;
 use SubscribeMe\Exception\UnsupportedTransactionalEmailPlatformException;
 use SubscribeMe\GDPR\UserConsent;
 use SubscribeMe\ValueObject\EmailAddress;
@@ -46,11 +46,11 @@ class YmlpSubscriber extends AbstractSubscriber
     public function subscribe(string $email, array $options, array $userConsents = []): bool|int
     {
         if (!is_string($this->getApiKey())) {
-            throw new MissingApiCredentialsException();
+            throw new ApiCredentialsException();
         }
 
         if (!is_string($this->getApiSecret())) {
-            throw new MissingApiCredentialsException();
+            throw new ApiCredentialsException();
         }
 
         $params = [

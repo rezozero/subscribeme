@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
+use Http\Client\Exception\RequestException;
 use Psr\Http\Client\ClientExceptionInterface;
+use SubscribeMe\Exception\ApiResponseException;
 use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Exception\CannotSubscribeException;
-use SubscribeMe\Exception\MissingApiCredentialsException;
+use SubscribeMe\Exception\ApiCredentialsException;
 use SubscribeMe\GDPR\UserConsent;
 use SubscribeMe\ValueObject\EmailAddress;
 
 class MailjetSubscriber extends AbstractSubscriber
 {
+    use ResponseValidationTrait;
     public function getPlatform(): string
     {
         return 'mailjet';
@@ -25,11 +28,11 @@ class MailjetSubscriber extends AbstractSubscriber
     public function subscribe(string $email, array $options, array $userConsents = []): bool|int
     {
         if (!is_string($this->getApiKey())) {
-            throw new MissingApiCredentialsException();
+            throw new ApiCredentialsException();
         }
 
         if (!is_string($this->getApiSecret())) {
-            throw new MissingApiCredentialsException();
+            throw new ApiCredentialsException();
         }
 
         $name = null;
@@ -107,11 +110,11 @@ class MailjetSubscriber extends AbstractSubscriber
         }
 
         if (!is_string($this->getApiKey())) {
-            throw new MissingApiCredentialsException();
+            throw new ApiCredentialsException();
         }
 
         if (!is_string($this->getApiSecret())) {
-            throw new MissingApiCredentialsException();
+            throw new ApiCredentialsException();
         }
 
         $body = [
@@ -138,9 +141,12 @@ class MailjetSubscriber extends AbstractSubscriber
                 ->withAddedHeader('User-Agent', 'rezozero/subscribeme')
                 ->withAddedHeader('Authorization', 'Basic ' . base64_encode(sprintf('%s:%s', $this->getApiKey(), $this->getApiSecret())));
 
-            return $this->getClient()->sendRequest($request)->getBody()->getContents();
+            $response = $this->getClient()->sendRequest($request);
+            return $this->validateResponse($response);
         } catch (ClientExceptionInterface $exception) {
-            throw new CannotSendTransactionalEmailException($exception);
+            throw new CannotSendTransactionalEmailException(previous: $exception);
+        } catch (ApiResponseException $exception) {
+            throw new CannotsendTransactionalEmailException($exception->getResponseBody()['ErrorMessage']);
         }
     }
 }

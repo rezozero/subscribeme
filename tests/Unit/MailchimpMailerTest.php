@@ -11,7 +11,8 @@ use JsonException;
 use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
-use SubscribeMe\Exception\MissingApiCredentialsException;
+use SubscribeMe\Exception\ApiCredentialsException;
+use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Subscriber\MailchimpSubscriber;
 use SubscribeMe\ValueObject\EmailAddress;
 
@@ -183,11 +184,28 @@ class MailchimpMailerTest extends TestCase
      */
     public function testExceptionApiKey(): void
     {
-        $this->expectException(MissingApiCredentialsException::class);
+        $this->expectException(ApiCredentialsException::class);
         $client = new Client();
         $factory = new Psr17Factory();
         $mailchimpSubscriber = new MailchimpSubscriber($client, $factory, $factory);
         $emails[0] = new EmailAddress('jdoe@example.com', 'John Doe');
-        $mailchimpSubscriber->sendTransactionalEmail($emails, 'template_name', ['test' => 'test']);
+        $mailchimpSubscriber->sendTransactionalEmail($emails, 'template_name');
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function testApiErrorException(): void
+    {
+        $this->expectException(CannotSendTransactionalEmailException::class);
+        $this->expectExceptionMessage('Invalid API key');
+        $client = new Client();
+        $factory = new Psr17Factory();
+        $client->setDefaultResponse(new Response(401, [], json_encode(['message' => 'Invalid API key'], JSON_THROW_ON_ERROR)));
+        $mailchimpSubscriber = new MailchimpSubscriber($client, $factory, $factory);
+        $mailchimpSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
+        $mailchimpSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
+        $emails[0] = new EmailAddress('jdoe@example.com', 'John Doe');
+        $mailchimpSubscriber->sendTransactionalEmail($emails, 'template_name', [['name' => 'test', 'content' => 'content test']]);
     }
 }

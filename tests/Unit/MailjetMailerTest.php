@@ -9,7 +9,9 @@ use Http\Mock\Client;
 use JsonException;
 use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use SubscribeMe\Exception\MissingApiCredentialsException;
+use SubscribeMe\Exception\ApiCredentialsException;
+use SubscribeMe\Exception\ApiResponseException;
+use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Subscriber\MailjetSubscriber;
 use SubscribeMe\ValueObject\EmailAddress;
 
@@ -149,10 +151,28 @@ class MailjetMailerTest extends TestCase
      */
     public function testExceptionApiKey(): void
     {
-        $this->expectException(MissingApiCredentialsException::class);
+        $this->expectException(ApiCredentialsException::class);
         $client = new Client();
         $factory = new Psr17Factory();
         $mailjetSubscriber = new MailjetSubscriber($client, $factory, $factory);
+        $emails[0] = new EmailAddress('passenger1@mailjet.com', 'passenger 1');
+        $variables = ['day' => 'Tuesday', 'personalmessage' => 'Happy birthday!'];
+        $mailjetSubscriber->sendTransactionalEmail($emails, 1, $variables);
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function testApiErrorException(): void
+    {
+        $this->expectException(CannotSendTransactionalEmailException::class);
+        $this->expectExceptionMessage('API key authentication/authorization failure.');
+        $client = new Client();
+        $factory = new Psr17Factory();
+        $client->setDefaultResponse(new Response(401, [], json_encode(['ErrorMessage' => 'API key authentication/authorization failure.'], JSON_THROW_ON_ERROR)));
+        $mailjetSubscriber = new MailjetSubscriber($client, $factory, $factory);
+        $mailjetSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
+        $mailjetSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
         $emails[0] = new EmailAddress('passenger1@mailjet.com', 'passenger 1');
         $variables = ['day' => 'Tuesday', 'personalmessage' => 'Happy birthday!'];
         $mailjetSubscriber->sendTransactionalEmail($emails, 1, $variables);

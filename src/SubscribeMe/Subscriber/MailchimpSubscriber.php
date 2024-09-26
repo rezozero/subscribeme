@@ -6,14 +6,16 @@ namespace SubscribeMe\Subscriber;
 
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
+use SubscribeMe\Exception\ApiResponseException;
 use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Exception\CannotSubscribeException;
-use SubscribeMe\Exception\MissingApiCredentialsException;
+use SubscribeMe\Exception\ApiCredentialsException;
 use SubscribeMe\GDPR\UserConsent;
 use SubscribeMe\ValueObject\EmailAddress;
 
 class MailchimpSubscriber extends AbstractSubscriber
 {
+    use ResponseValidationTrait;
     private string $dc = 'us16';
     private string $statusWhenSubscribed = 'subscribed';
 
@@ -67,11 +69,11 @@ class MailchimpSubscriber extends AbstractSubscriber
     public function subscribe(string $email, array $options, array $userConsents = []): bool|int
     {
         if (!is_string($this->getApiKey())) {
-            throw new MissingApiCredentialsException();
+            throw new ApiCredentialsException();
         }
 
         if (!is_string($this->getApiSecret())) {
-            throw new MissingApiCredentialsException();
+            throw new ApiCredentialsException();
         }
 
         $uri = 'https://' . $this->getDc() . '.api.mailchimp.com/3.0/lists/' . $this->getContactListId() . '/members';
@@ -150,7 +152,7 @@ class MailchimpSubscriber extends AbstractSubscriber
         }
 
         if (!is_string($this->getApiKey())) {
-            throw new MissingApiCredentialsException();
+            throw new ApiCredentialsException();
         }
 
         if (!empty($variables)) {
@@ -187,9 +189,12 @@ class MailchimpSubscriber extends AbstractSubscriber
                 ->withAddedHeader('Content-Type', 'application/json')
                 ->withAddedHeader('User-Agent', 'rezozero/subscribeme');
 
-            return $this->getClient()->sendRequest($request)->getBody()->getContents();
+            $response = $this->getClient()->sendRequest($request);
+            return $this->validateResponse($response);
         } catch (ClientExceptionInterface $exception) {
-            throw new CannotSendTransactionalEmailException($exception);
+            throw new CannotSendTransactionalEmailException(previous: $exception);
+        } catch (ApiResponseException $exception) {
+            throw new CannotsendTransactionalEmailException($exception->getResponseBody()['message']);
         }
     }
 }

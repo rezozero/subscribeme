@@ -6,9 +6,10 @@ namespace SubscribeMe\Subscriber;
 
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
+use SubscribeMe\Exception\ApiResponseException;
 use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Exception\CannotSubscribeException;
-use SubscribeMe\Exception\MissingApiCredentialsException;
+use SubscribeMe\Exception\ApiCredentialsException;
 use SubscribeMe\GDPR\UserConsent;
 use SubscribeMe\ValueObject\EmailAddress;
 
@@ -17,6 +18,7 @@ use SubscribeMe\ValueObject\EmailAddress;
  */
 class SendInBlueSubscriber extends AbstractSubscriber
 {
+    use ResponseValidationTrait;
     public function getPlatform(): string
     {
         return 'sendinblue';
@@ -90,7 +92,7 @@ class SendInBlueSubscriber extends AbstractSubscriber
     {
         try {
             if (!is_string($this->getApiKey())) {
-                throw new MissingApiCredentialsException();
+                throw new ApiCredentialsException();
             }
 
             $bodyStreamed = $this->getStreamFactory()->createStream(json_encode($body, JSON_THROW_ON_ERROR));
@@ -164,7 +166,7 @@ class SendInBlueSubscriber extends AbstractSubscriber
         }
 
         if (!is_string($this->getApiKey())) {
-            throw new MissingApiCredentialsException();
+            throw new ApiCredentialsException();
         }
 
         $body = [
@@ -188,9 +190,12 @@ class SendInBlueSubscriber extends AbstractSubscriber
                 ->withAddedHeader('User-Agent', 'rezozero/subscribeme')
                 ->withAddedHeader('api-key', $this->getApiKey());
 
-            return $this->getClient()->sendRequest($request)->getBody()->getContents();
+            $response = $this->getClient()->sendRequest($request);
+            return $this->validateResponse($response);
         } catch (ClientExceptionInterface $exception) {
-            throw new CannotSendTransactionalEmailException($exception);
+            throw new CannotSendTransactionalEmailException(previous: $exception);
+        } catch (ApiResponseException $exception) {
+            throw new CannotsendTransactionalEmailException($exception->getResponseBody()['message']);
         }
     }
 }
