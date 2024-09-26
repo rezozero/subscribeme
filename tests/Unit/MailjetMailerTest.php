@@ -113,11 +113,11 @@ class MailjetMailerTest extends TestCase
             'day' => 'Tuesday',
             'personalmessage' => 'Happy birthday!'
         ];
-        $templateEmail = 1;
+        $emailTemplateId = 1;
 
         $mailjetSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
         $mailjetSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
-        $mailjetSubscriber->sendTransactionalEmail($emails, $templateEmail, $variables);
+        $mailjetSubscriber->sendTransactionalEmail($emails, $emailTemplateId, $variables);
 
         $requests = $client->getRequests();
 
@@ -130,7 +130,7 @@ class MailjetMailerTest extends TestCase
                     ]
                 ],
                 'Variables' => $variables,
-                'TemplateID' => $templateEmail,
+                'TemplateID' => $emailTemplateId,
                 'TemplateLanguage' => true,
             ]]
         ];

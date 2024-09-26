@@ -175,10 +175,10 @@ class BrevoMailerTest extends TestCase
             'LNAME' => 'Doe'
         ];
 
-        $templateEmail = 2;
+        $emailTemplateId = 2;
 
         $brevoSubscriber->setApiKey('75620ec7-54ea-451d-ad0d-ab4f43f9879c');
-        $brevoSubscriber->sendTransactionalEmail($emails, $templateEmail, $variables);
+        $brevoSubscriber->sendTransactionalEmail($emails, $emailTemplateId, $variables);
 
         $requests = $client->getRequests();
 
@@ -190,7 +190,7 @@ class BrevoMailerTest extends TestCase
                 ]
             ],
             'params' => $variables,
-            'templateId' => $templateEmail,
+            'templateId' => $emailTemplateId,
         ];
         $body = json_encode($body);
 

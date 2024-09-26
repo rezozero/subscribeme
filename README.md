@@ -19,7 +19,16 @@ composer require rezozero/subscribeme
 ```
 
 ```php
-$subscriber = \SubscribeMe\Factory::createFor('mailjet');
+use SubscribeMe\Factory;
+
+/**
+* We use Psr18 so you need to use a client that implements psr 18 like guzzle for example
+*/
+$factory = new Factory($client, $requestFactory, $streamFactory);
+
+// 'mailjet' | 'brevo' | 'mailchimp' | 'ymlp'
+$subscriber = $factory->createFor('mailjet');
+
 $subscriber->setApiKey('xxxx');
 $subscriber->setApiSecret('xxxx');
 $subscriber->setContactListId('xxxx');
@@ -37,6 +46,14 @@ $userConsent->setUsage('E-mail marketing campaigns');
 $userConsent->setUsageFieldName('gdpr_consent_usage');
 
 $subscriber->subscribe('hello@super.test', ['Name' => 'John Doe'], [$userConsent]);
+
+// method for send transactional email (YMLP does not support transactional)
+/**
+* @param array<\SubscribeMe\ValueObject\EmailAddress> $emails (email required, name optional)
+* @param int|string $emailTemplateId required
+* @param array $variables optional
+*/
+$subscriber->sendTransactionalEmail($emails, $emailTemplateId, $variables)
 ```
 
 ## GDPR consent support
@@ -88,7 +105,7 @@ $userConsentAds->setConsentGiven(false);
 $userConsentAds->setConsentFieldName('other_marketing_id');
 $userConsentAds->setIpAddress('xx.xx.xx.xx');
 
-$subscriber = \SubscribeMe\Factory::createFor('mailchimp');
+$subscriber = $factory->createFor('mailchimp');
 $subscriber->subscribe(
     'hello@super.test', 
     ['FNAME'=>'Hello', 'LNAME'=>'Super'],
@@ -96,10 +113,12 @@ $subscriber->subscribe(
 );
 ```
 
-## Mailchimp options
+## Mailchimp
+
+### Mailchimp options subscriber
 
 ```php
-$subscriber = \SubscribeMe\Factory::createFor('mailchimp');
+$subscriber = $factory->createFor('mailchimp');
 $subscriber->setApiKey('your_username');
 $subscriber->setApiSecret('xxxx');
 $subscriber->setContactListId('xxxx');
@@ -111,12 +130,34 @@ $subscriber->setSubscribed();
 $subscriber->setPending();
 ```
 
-## YMLP options
+### Mailchimp options sender transactional email
+
+See https://mailchimp.com/developer/transactional/api/messages/send-using-message-template/
+
+```php
+$subscriber = $factory->createFor('mailchimp');
+// Mailchimp only requires an API Key
+$subscriber->setApiKey('mailchimp_api_key');
+// use an array of value object EmailAddress for recipients
+$emails[] = new \SubscribeMe\ValueObject\EmailAddress('hello@super.test', 'John Doe');
+// Mailchimp only use string for his $templateEmailId
+$emailTemplateId = 'teamplate_name';
+// Mailchimp use an array of variables arrays how contains 'name' and 'content'
+$variables = [[
+    'name' => 'test',
+    'content' => 'content test'
+]];
+$subscriber->sendTransactionalEmail($emails, $emailTemplateId, $variables);
+```
+
+## YMLP
+
+### YMLP options subscriber
 
 See https://www.ymlp.com/app/api_command.php?command=Contacts.Add
 
 ```php
-$subscriber = \SubscribeMe\Factory::createFor('ymlp');
+$subscriber = $factory->createFor('ymlp');
 $subscriber->setApiKey('your_username');
 $subscriber->setApiSecret('your_api_key');
 $subscriber->setContactListId('your_group_id');
@@ -127,12 +168,18 @@ $subscriber->setOverruleUnsubscribedBounced(true);
 
 For getting your additional fields ID: see https://www.ymlp.com/api/Fields.GetList?Key=api_key&Username=username
 
-## Brevo options
+### YMLP options sender transactional email
+
+YMLP does not support transactional email, we throw an `UnsupportedTransactionalEmailPlatformException`.
+
+## Brevo
+
+### Brevo subscriber options
 
 See https://developers.brevo.com/reference#createcontact
 
 ```php
-$subscriber = \SubscribeMe\Factory::createFor('brevo');
+$subscriber = $factory->createFor('brevo');
 // Brevo only requires an API Key
 $subscriber->setApiKey('brevo_api_key');
 // Brevo list identifiers are int. You can subscribe user to multiple lists with comma-separated list 
@@ -143,12 +190,12 @@ $subscriber->subscribe('hello@super.test', ["FNAME" => "Elly", "LNAME" => "Roger
 
 For getting your additional fields ID: see https://my.brevo.com/lists/add-attributes
 
-## Brevo Double Opt-In options
+### Brevo Double Opt-In options
 
 See https://developers.brevo.com/reference/createdoicontact
 
 ```php
-$subscriber = \SubscribeMe\Factory::createFor('brevo-doi');
+$subscriber = $factory->createFor('brevo-doi');
 // Brevo only requires an API Key
 $subscriber->setApiKey('brevo_api_key');
 // Brevo list identifiers are int. You can subscribe user to multiple lists with comma-separated list 
@@ -157,4 +204,64 @@ $subscriber->setTemplateId(1);
 $subscriber->setRedirectionUrl('https://www.example.com/subscribed');  
 
 $subscriber->subscribe('hello@super.test', ["FNAME" => "Elly", "LNAME" => "Roger"], [$userConsent]);
+```
+
+### Brevo sender transactional email options
+
+See https://developers.brevo.com/reference/sendtransacemail
+
+```php
+$subscriber = $factory->createFor('brevo');
+// Brevo only requires an API Key
+$subscriber->setApiKey('brevo_api_key');
+// use an array of value object EmailAddress for recipients
+$emails[] = new EmailAddress('jimmy98@example.com', 'Jimmy');
+// Brevo only use int for his $templateEmailId
+$templateEmail = 1;
+/** Brevo need an array of variables with in key the variables you want to change
+ * and value the value you want for replace key in template
+*/
+$variables = [
+    'FNAME' => 'Joe',
+    'LNAME' => 'Doe'
+];
+$subscriber->sendTransactionalEmail($emails, $templateEmail, $variables);
+```
+
+## Mailjet
+
+### Mailjet subscriber options
+
+```php
+$subscriber = $factory->createFor('mailjet');
+// Mailjet requires an API Key and an API Secret
+$subscriber->setApiKey('mailjet_api_key');
+$subscriber->setApiSecret('mailjet_api_secret')
+// Mailjet list identifiers are int. You can subscribe user to multiple lists with comma-separated list 
+$subscriber->setContactListId('3,5,3');
+
+$subscriber->subscribe('hello@super.test', ["FNAME" => "Elly", "LNAME" => "Roger"], [$userConsent]);
+```
+
+### Mailjet sender transactional email options
+
+See https://dev.mailjet.com/email/guides/send-api-v31/#use-templating-language
+
+```php
+$subscriber = $factory->createFor('mailjet');
+// Mailjet requires an API Key and an API Secret
+$subscriber->setApiKey('mailjet_api_key');
+$subscriber->setApiSecret('mailjet_api_secret')
+// use an array of value object EmailAddress for recipients
+$emails[] = new EmailAddress('passenger1@mailjet.com', 'passenger 1');
+// Mailjet only use int for his $templateEmailId
+$templateEmail = 1;
+/** Mailjet need an array of variables with in key the variables you want to change
+ * and value the value you want for replace key in template
+*/
+$variables = [
+    'day' => 'Tuesday',
+    'personalmessage' => 'Happy birthday!'
+];
+$subscriber->sendTransactionalEmail($emails, $templateEmail, $variables);
 ```
