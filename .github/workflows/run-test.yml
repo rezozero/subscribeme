@@ -39,4 +39,4 @@ jobs:
             - name: Run PHPStan
               run: vendor/bin/phpstan analyse --no-progress -c phpstan.neon
             - name : Run PHPUnit
-              run: vendor/bin/phpunit test/Unit/* --colors=never
+              run: vendor/bin/phpunit tests/Unit/* --colors=never
