@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
+use http\Exception\InvalidArgumentException;
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
 use SubscribeMe\Exception\ApiResponseException;
@@ -155,13 +156,35 @@ class MailchimpSubscriber extends AbstractSubscriber
             throw new ApiCredentialsException();
         }
 
+        $valid = true;
+        foreach ($variables as $key => $value) {
+            if (!is_string($key)) {
+                $valid = false;
+                break;
+            }
+
+            if (is_array($value)) {
+                foreach ($value as $nestedKey => $nestedValue) {
+                    // @phpstan-ignore-next-line
+                    if (!is_string($nestedKey) || !(is_string($nestedValue) || is_int($nestedValue) || is_bool($nestedValue))) {
+                        $valid = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!$valid) {
+            throw new \InvalidArgumentException('Variables signature was invalid');
+        }
+
         if (!empty($variables)) {
-            $variables = array_map(function ($variable) {
+            $variables = array_map(function ($key, $value) {
                 return [
-                    'name' => $variable['name'],
-                    'content' => $variable['content'],
+                    'name' => $key,
+                    'content' => $value
                 ];
-            }, $variables);
+            }, array_keys($variables), $variables);
         }
 
         $body = [

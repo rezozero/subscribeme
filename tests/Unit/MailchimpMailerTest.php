@@ -6,6 +6,7 @@ namespace Unit;
 
 use Http\Client\Exception;
 use Http\Discovery\Psr17Factory;
+use http\Exception\InvalidArgumentException;
 use Http\Mock\Client;
 use JsonException;
 use Nyholm\Psr7\Response;
@@ -141,10 +142,9 @@ class MailchimpMailerTest extends TestCase
         $mailchimpSubscriber = new MailchimpSubscriber($client, $factory, $factory);
 
         $emails[0] = new EmailAddress('jdoe@example.com', 'John Doe');
-        $variables = [[
-            'name' => 'test',
-            'content' => 'content test'
-        ]];
+        $variables = [
+            'test' => 'content test',
+        ];
         $emailTemplateId = 'template_name';
 
         $mailchimpSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
@@ -161,10 +161,12 @@ class MailchimpMailerTest extends TestCase
                     'name' => 'John Doe',
                     'type' => 'to',
                 ]],
-                'global_merge_vars' => [[
-                    'name' => 'test',
-                    'content' => 'content test'
-                ]]
+                'global_merge_vars' => [
+                    [
+                        'name' => 'test',
+                        'content' => 'content test'
+                    ]
+                ]
             ],
             'key' => '3f62c1f4-efb7-4bc7-b76d-0c2217d307b0'
         ];
@@ -206,6 +208,33 @@ class MailchimpMailerTest extends TestCase
         $mailchimpSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
         $mailchimpSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
         $emails[0] = new EmailAddress('jdoe@example.com', 'John Doe');
-        $mailchimpSubscriber->sendTransactionalEmail($emails, 'template_name', [['name' => 'test', 'content' => 'content test']]);
+        $mailchimpSubscriber->sendTransactionalEmail($emails, 'template_name', ['name' => 'test', 'content' => 'content test']);
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function testVariablesException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Variables signature was invalid');
+        $client = new Client();
+        $factory = new Psr17Factory();
+        $mailchimpSubscriber = new MailchimpSubscriber($client, $factory, $factory);
+        $mailchimpSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
+        $mailchimpSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
+        $emails = [
+            new EmailAddress('jdoe@example.com', 'John Doe')
+        ];
+        $variables = [
+            'valid_key' => 'valid content',
+            123 => 'invalid key',
+            'test_array' => [
+                'nested_string' => 'nested content',
+                'nested_invalid' => [1, 2, 3],
+            ]
+        ];
+        // @phpstan-ignore-next-line
+        $mailchimpSubscriber->sendTransactionalEmail($emails, 'template_name', $variables);
     }
 }

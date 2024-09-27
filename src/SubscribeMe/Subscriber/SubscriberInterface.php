@@ -30,7 +30,7 @@ interface SubscriberInterface
     /**
      * @param array<EmailAddress> $emails
      * @param string|int $emailTemplateId
-     * @param array $variables
+     * @param array<string, string|int|bool|array<string|int|bool>> $variables
      * @return string Platform Response body after sending
      * @throws JsonException
      */

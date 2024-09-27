@@ -2,7 +2,7 @@
 
 [![Static analysis and code style](https://github.com/rezozero/subscribeme/actions/workflows/run-test.yml/badge.svg)](https://github.com/rezozero/subscribeme/actions/workflows/run-test.yml)
 
-Simple mailing-list subscriber factory.
+Unified Email Service Library: A simple mailing list subscriber factory that includes a mailing list subscription feature and the ability to send transactional emails.
 
 ## Supported platforms
 
@@ -22,9 +22,18 @@ composer require rezozero/subscribeme
 use SubscribeMe\Factory;
 
 /**
-* We use Psr18 so you need to use a client that implements psr 18 like guzzle for example
+* This library uses PSR18 and PSR17 so you need to provide a client that implements PSR18 like Guzzle for example
+ * @param ClientInterface $client
+ * @param RequestFactoryInterface $requestFactory
+ * @param StreamFactoryInterface $streamFactory
 */
 $factory = new Factory($client, $requestFactory, $streamFactory);
+
+// ######## GUZZLE EXAMPLE ##########
+$client = new \GuzzleHttp\Client();
+$httpFactory = new GuzzleHttp\Psr7\HttpFactory();
+$factory = new Factory($client, $httpFactory, $httpFactory);
+// ##################################
 
 // 'mailjet' | 'brevo' | 'mailchimp' | 'ymlp'
 $subscriber = $factory->createFor('mailjet');
@@ -47,12 +56,13 @@ $userConsent->setUsageFieldName('gdpr_consent_usage');
 
 $subscriber->subscribe('hello@super.test', ['Name' => 'John Doe'], [$userConsent]);
 
-// method for send transactional email (YMLP does not support transactional)
 /**
-* @param array<\SubscribeMe\ValueObject\EmailAddress> $emails (email required, name optional)
-* @param int|string $emailTemplateId required
-* @param array $variables optional
-*/
+ * Method for sending transactional emails (YMLP does not support transactional emails).
+ *
+ * @param array<\SubscribeMe\ValueObject\EmailAddress> $emails (email required, name optional)
+ * @param int|string $emailTemplateId required
+ * @param array $variables optional
+ */
 $subscriber->sendTransactionalEmail($emails, $emailTemplateId, $variables)
 ```
 
@@ -139,14 +149,18 @@ $subscriber = $factory->createFor('mailchimp');
 // Mailchimp only requires an API Key
 $subscriber->setApiKey('mailchimp_api_key');
 // use an array of value object EmailAddress for recipients
-$emails[] = new \SubscribeMe\ValueObject\EmailAddress('hello@super.test', 'John Doe');
+$emails = [
+    new \SubscribeMe\ValueObject\EmailAddress('hello@super.test', 'John Doe')
+];
 // Mailchimp only use string for his $templateEmailId
-$emailTemplateId = 'teamplate_name';
-// Mailchimp use an array of variables arrays how contains 'name' and 'content'
-$variables = [[
-    'name' => 'test',
-    'content' => 'content test'
-]];
+$emailTemplateId = 'template_name';
+/** 
+ * MailChimp accepts an array of variables to inject into your transactional template.
+*/
+$variables = [
+    'FNAME' => 'John',
+    'LNAME' => 'Doe'
+];
 $subscriber->sendTransactionalEmail($emails, $emailTemplateId, $variables);
 ```
 
@@ -215,11 +229,13 @@ $subscriber = $factory->createFor('brevo');
 // Brevo only requires an API Key
 $subscriber->setApiKey('brevo_api_key');
 // use an array of value object EmailAddress for recipients
-$emails[] = new EmailAddress('jimmy98@example.com', 'Jimmy');
+$emails = [
+    new EmailAddress('jimmy98@example.com', 'Jimmy');
+]
 // Brevo only use int for his $templateEmailId
 $templateEmail = 1;
-/** Brevo need an array of variables with in key the variables you want to change
- * and value the value you want for replace key in template
+/** 
+ * Brevo accepts an array of variables to inject into your transactional template.
 */
 $variables = [
     'FNAME' => 'Joe',
@@ -256,8 +272,8 @@ $subscriber->setApiSecret('mailjet_api_secret')
 $emails[] = new EmailAddress('passenger1@mailjet.com', 'passenger 1');
 // Mailjet only use int for his $templateEmailId
 $templateEmail = 1;
-/** Mailjet need an array of variables with in key the variables you want to change
- * and value the value you want for replace key in template
+/** 
+ * Mailjet accepts an array of variables to inject into your transactional template.
 */
 $variables = [
     'day' => 'Tuesday',
