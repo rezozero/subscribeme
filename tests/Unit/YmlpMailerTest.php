@@ -98,7 +98,9 @@ class YmlpMailerTest extends TestCase
         $client = new Client();
         $factory = new Psr17Factory();
         $ymlpSubscriber = new YmlpSubscriber($client, $factory, $factory);
-        $emails[0] = new EmailAddress('passenger1@mailjet.com', 'passenger 1');
+        $emails = [
+            new EmailAddress('jdoe@example.com', 'John Doe')
+        ];
         $ymlpSubscriber->sendTransactionalEmail($emails, '1', []);
     }
 }

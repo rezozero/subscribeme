@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
-use http\Exception\InvalidArgumentException;
-use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
+use SubscribeMe\Exception\ApiCredentialsException;
 use SubscribeMe\Exception\ApiResponseException;
 use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Exception\CannotSubscribeException;
-use SubscribeMe\Exception\ApiCredentialsException;
 use SubscribeMe\GDPR\UserConsent;
 use SubscribeMe\ValueObject\EmailAddress;
 
@@ -156,36 +154,7 @@ class MailchimpSubscriber extends AbstractSubscriber
             throw new ApiCredentialsException();
         }
 
-        $valid = true;
-        foreach ($variables as $key => $value) {
-            if (!is_string($key)) {
-                $valid = false;
-                break;
-            }
-
-            if (is_array($value)) {
-                foreach ($value as $nestedKey => $nestedValue) {
-                    // @phpstan-ignore-next-line
-                    if (!is_string($nestedKey) || !(is_string($nestedValue) || is_int($nestedValue) || is_bool($nestedValue))) {
-                        $valid = false;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (!$valid) {
-            throw new \InvalidArgumentException('Variables signature was invalid');
-        }
-
-        if (!empty($variables)) {
-            $variables = array_map(function ($key, $value) {
-                return [
-                    'name' => $key,
-                    'content' => $value
-                ];
-            }, array_keys($variables), $variables);
-        }
+        $variables = $this->transformVariables($variables);
 
         $body = [
             'template_name' => (string) $emailTemplateId,
@@ -219,5 +188,40 @@ class MailchimpSubscriber extends AbstractSubscriber
         } catch (ApiResponseException $exception) {
             throw new CannotsendTransactionalEmailException($exception->getResponseBody()['message']);
         }
+    }
+
+    private function transformVariables(array $variables): array
+    {
+        $valid = true;
+        foreach ($variables as $key => $value) {
+            if (!is_string($key)) {
+                $valid = false;
+                break;
+            }
+
+            if (is_array($value)) {
+                foreach ($value as $nestedKey => $nestedValue) {
+                    // @phpstan-ignore-next-line
+                    if (!is_string($nestedKey) || !(is_string($nestedValue) || is_int($nestedValue) || is_bool($nestedValue))) {
+                        $valid = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!$valid) {
+            throw new \InvalidArgumentException('Variables signature was invalid');
+        }
+
+        if (!empty($variables)) {
+            $variables = array_map(function ($key, $value) {
+                return [
+                    'name' => $key,
+                    'content' => $value
+                ];
+            }, array_keys($variables), $variables);
+        }
+        return $variables;
     }
 }

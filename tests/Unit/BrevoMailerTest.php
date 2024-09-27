@@ -169,7 +169,9 @@ class BrevoMailerTest extends TestCase
         $factory = new Psr17Factory();
         $brevoSubscriber = new BrevoSubscriber($client, $factory, $factory);
 
-        $emails[0] = new EmailAddress('jimmy98@example.com', 'Jimmy');
+        $emails = [
+            new EmailAddress('jimmy98@example.com', 'Jimmy')
+        ];
         $variables = [
             'FNAME' => 'Joe',
             'LNAME' => 'Doe'
@@ -213,7 +215,9 @@ class BrevoMailerTest extends TestCase
         $client = new Client();
         $factory = new Psr17Factory();
         $brevoSubscriber = new BrevoSubscriber($client, $factory, $factory);
-        $emails[0] = new EmailAddress('jimmy98@example.com', 'Jimmy');
+        $emails = [
+            new EmailAddress('jimmy98@example.com', 'Jimmy')
+        ];
         $brevoSubscriber->sendTransactionalEmail($emails, 2, ['FNAME' => 'Joe', 'LNAME' => 'Doe']);
     }
 
@@ -229,7 +233,9 @@ class BrevoMailerTest extends TestCase
         $client->setDefaultResponse(new Response(401, [], json_encode(['message' => 'Key not found'], JSON_THROW_ON_ERROR)));
         $brevoSubscriber = new BrevoSubscriber($client, $factory, $factory);
         $brevoSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
-        $emails[0] = new EmailAddress('jimmy98@example.com', 'Jimmy');
+        $emails = [
+            new EmailAddress('jimmy98@example.com', 'Jimmy')
+        ];
         $brevoSubscriber->sendTransactionalEmail($emails, 2, ['FNAME' => 'Joe', 'LNAME' => 'Doe']);
     }
 }

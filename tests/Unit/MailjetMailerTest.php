@@ -108,7 +108,9 @@ class MailjetMailerTest extends TestCase
         $factory = new Psr17Factory();
         $mailjetSubscriber = new MailjetSubscriber($client, $factory, $factory);
 
-        $emails[0] = new EmailAddress('passenger1@mailjet.com', 'passenger 1');
+        $emails = [
+            new EmailAddress('passenger1@mailjet.com', 'passenger 1')
+        ];
         $variables = [
             'day' => 'Tuesday',
             'personalmessage' => 'Happy birthday!'
@@ -155,7 +157,9 @@ class MailjetMailerTest extends TestCase
         $client = new Client();
         $factory = new Psr17Factory();
         $mailjetSubscriber = new MailjetSubscriber($client, $factory, $factory);
-        $emails[0] = new EmailAddress('passenger1@mailjet.com', 'passenger 1');
+        $emails = [
+            new EmailAddress('passenger1@mailjet.com', 'passenger 1')
+        ];
         $variables = ['day' => 'Tuesday', 'personalmessage' => 'Happy birthday!'];
         $mailjetSubscriber->sendTransactionalEmail($emails, 1, $variables);
     }
@@ -173,7 +177,9 @@ class MailjetMailerTest extends TestCase
         $mailjetSubscriber = new MailjetSubscriber($client, $factory, $factory);
         $mailjetSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
         $mailjetSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
-        $emails[0] = new EmailAddress('passenger1@mailjet.com', 'passenger 1');
+        $emails = [
+            new EmailAddress('passenger1@mailjet.com', 'passenger 1')
+        ];
         $variables = ['day' => 'Tuesday', 'personalmessage' => 'Happy birthday!'];
         $mailjetSubscriber->sendTransactionalEmail($emails, 1, $variables);
     }

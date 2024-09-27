@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Unit;
 
-use Http\Client\Exception;
 use Http\Discovery\Psr17Factory;
-use http\Exception\InvalidArgumentException;
 use Http\Mock\Client;
 use JsonException;
 use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseInterface;
 use SubscribeMe\Exception\ApiCredentialsException;
 use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Subscriber\MailchimpSubscriber;
@@ -141,9 +138,18 @@ class MailchimpMailerTest extends TestCase
         $factory = new Psr17Factory();
         $mailchimpSubscriber = new MailchimpSubscriber($client, $factory, $factory);
 
-        $emails[0] = new EmailAddress('jdoe@example.com', 'John Doe');
+        $emails = [
+            new EmailAddress('jdoe@example.com', 'John Doe')
+        ];
         $variables = [
-            'test' => 'content test',
+            'test_string' => 'string content',
+            'test_int' => 42,
+            'test_bool' => true,
+            'test_array' => [
+                'nested_string' => 'nested content',
+                'nested_int' => 100,
+                'nested_bool' => false,
+            ]
         ];
         $emailTemplateId = 'template_name';
 
@@ -163,9 +169,25 @@ class MailchimpMailerTest extends TestCase
                 ]],
                 'global_merge_vars' => [
                     [
-                        'name' => 'test',
-                        'content' => 'content test'
-                    ]
+                        "content" => "string content",
+                        "name" => "test_string"
+                    ],
+                    [
+                        "content" => 42,
+                        "name" => "test_int"
+                    ],
+                    [
+                        "content" => true,
+                        "name" => "test_bool"
+                    ],
+                    [
+                        "content" => [
+                            "nested_bool" => false,
+                            "nested_int" => 100,
+                            "nested_string" => "nested content"
+                        ],
+                        "name" => "test_array"
+                    ],
                 ]
             ],
             'key' => '3f62c1f4-efb7-4bc7-b76d-0c2217d307b0'
@@ -190,7 +212,9 @@ class MailchimpMailerTest extends TestCase
         $client = new Client();
         $factory = new Psr17Factory();
         $mailchimpSubscriber = new MailchimpSubscriber($client, $factory, $factory);
-        $emails[0] = new EmailAddress('jdoe@example.com', 'John Doe');
+        $emails = [
+            new EmailAddress('jdoe@example.com', 'John Doe')
+        ];
         $mailchimpSubscriber->sendTransactionalEmail($emails, 'template_name');
     }
 
@@ -207,7 +231,9 @@ class MailchimpMailerTest extends TestCase
         $mailchimpSubscriber = new MailchimpSubscriber($client, $factory, $factory);
         $mailchimpSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
         $mailchimpSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
-        $emails[0] = new EmailAddress('jdoe@example.com', 'John Doe');
+        $emails = [
+            new EmailAddress('jdoe@example.com', 'John Doe')
+        ];
         $mailchimpSubscriber->sendTransactionalEmail($emails, 'template_name', ['name' => 'test', 'content' => 'content test']);
     }
 
