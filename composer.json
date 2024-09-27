@@ -1,6 +1,6 @@
 {
     "name": "rezozero/subscribeme",
-    "description": "Simple Mailing-list subscriber factory.",
+    "description": "Unified Email Service Library: A simple mailing list subscriber factory that includes a mailing list subscription feature and the ability to send transactional emails.",
     "type": "library",
     "require": {
         "php":">=8.0",
