@@ -66,6 +66,46 @@ $subscriber->subscribe('hello@super.test', ['Name' => 'John Doe'], [$userConsent
 $subscriber->sendTransactionalEmail($emails, $emailTemplateId, $variables)
 ```
 
+### SYMFONY Implementation
+
+With symfony, you don't have to implement the factory,
+you can directly implement the interface and thus make the code generic,
+which means that if you want to change platform later,
+you just have to change the register implementation.
+
+```php
+class YourClass
+{
+    public function __construct(
+        private SubscriberInterface $subscriber
+    ) {
+    }
+    
+    public function sendTransactional()
+    {
+        $this->subscriber->sendTransactionalEmail(
+            [
+                new EmailAddress('user@example.com')
+            ],
+            $templateId
+        )
+    }
+}
+```
+
+```yaml
+# services.yaml
+services:
+  SubscribeMe\Subscriber\SubscriberInterface:
+    # here call the class of the platform used in your project (example with mailjet)
+    class: SubscribeMe\Subscriber\MailjetSubscriber
+    autowire: true
+    calls:
+      # here call method necessary on the platform (mailjet need apiKey and apiSecret)
+      - setApiKey: [ '%env(string:APP_MAILJET_API_KEY)%' ]
+      - setApiSecret: [ '%env(string:APP_MAILJET_API_SECRET_KEY)%' ]
+```
+
 ## GDPR consent support
 
 Prepare your audience list with additional fields in order to store your users consent (https://www.mailjet.com/gdpr/consent/) :
