@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace SubscribeMe\Subscriber;
 
 use Psr\Http\Client\ClientExceptionInterface;
-use SubscribeMe\Exception\CannotSubscribeException;
 use SubscribeMe\Exception\ApiCredentialsException;
+use SubscribeMe\Exception\CannotSubscribeException;
 use SubscribeMe\Exception\UnsupportedTransactionalEmailPlatformException;
 use SubscribeMe\GDPR\UserConsent;
-use SubscribeMe\ValueObject\EmailAddress;
 
 class YmlpSubscriber extends AbstractSubscriber
 {
@@ -23,11 +22,6 @@ class YmlpSubscriber extends AbstractSubscriber
         return $this->overruleUnsubscribedBounced;
     }
 
-    /**
-     * @param bool $overruleUnsubscribedBounced
-     *
-     * @return YmlpSubscriber
-     */
     public function setOverruleUnsubscribedBounced(bool $overruleUnsubscribedBounced): YmlpSubscriber
     {
         $this->overruleUnsubscribedBounced = $overruleUnsubscribedBounced;

@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
-use Http\Client\Exception\RequestException;
 use Psr\Http\Client\ClientExceptionInterface;
+use SubscribeMe\Exception\ApiCredentialsException;
 use SubscribeMe\Exception\ApiResponseException;
 use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Exception\CannotSubscribeException;
-use SubscribeMe\Exception\ApiCredentialsException;
 use SubscribeMe\GDPR\UserConsent;
 use SubscribeMe\ValueObject\EmailAddress;
 

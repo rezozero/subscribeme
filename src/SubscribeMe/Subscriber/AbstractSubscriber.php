@@ -14,11 +14,6 @@ abstract class AbstractSubscriber implements SubscriberInterface
     private ?string $apiSecret = null;
     private ?string $contactListId = null;
 
-    /***
-     * @param ClientInterface $client
-     * @param RequestFactoryInterface $requestFactory
-     * @param StreamFactoryInterface $streamFactory
-     */
     public function __construct(
         private ClientInterface $client,
         private RequestFactoryInterface $requestFactory,
@@ -26,9 +21,6 @@ abstract class AbstractSubscriber implements SubscriberInterface
     ) {
     }
 
-    /**
-     * @return ClientInterface
-     */
     protected function getClient(): ClientInterface
     {
         return $this->client;
@@ -44,19 +36,11 @@ abstract class AbstractSubscriber implements SubscriberInterface
         return $this->streamFactory;
     }
 
-    /**
-     * @return string|null
-     */
     public function getApiKey(): ?string
     {
         return $this->apiKey;
     }
 
-    /**
-     * @param string|null $apiKey
-     *
-     * @return SubscriberInterface
-     */
     public function setApiKey(?string $apiKey): SubscriberInterface
     {
         $this->apiKey = $apiKey;
@@ -64,19 +48,11 @@ abstract class AbstractSubscriber implements SubscriberInterface
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getApiSecret(): ?string
     {
         return $this->apiSecret;
     }
 
-    /**
-     * @param string|null $apiSecret
-     *
-     * @return SubscriberInterface
-     */
     public function setApiSecret(?string $apiSecret): SubscriberInterface
     {
         $this->apiSecret = $apiSecret;
@@ -84,18 +60,13 @@ abstract class AbstractSubscriber implements SubscriberInterface
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getContactListId(): ?string
     {
         return $this->contactListId;
     }
 
     /**
-     * @param string|null $contactListId List ID (may be multiple comma-separated)
-     *
-     * @return SubscriberInterface
+     * @param string|null $contactListId List ID (maybe multiple comma-separated)
      */
     public function setContactListId(?string $contactListId): SubscriberInterface
     {

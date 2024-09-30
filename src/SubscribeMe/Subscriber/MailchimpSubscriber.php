@@ -31,11 +31,6 @@ class MailchimpSubscriber extends AbstractSubscriber
         return $this->dc;
     }
 
-    /**
-     * @param string $dc
-     *
-     * @return MailchimpSubscriber
-     */
     public function setDc(string $dc): MailchimpSubscriber
     {
         $this->dc = $dc;
@@ -43,18 +38,12 @@ class MailchimpSubscriber extends AbstractSubscriber
         return $this;
     }
 
-    /**
-     * @return MailchimpSubscriber
-     */
     public function setSubscribed(): MailchimpSubscriber
     {
         $this->statusWhenSubscribed = 'subscribed';
         return $this;
     }
 
-    /**
-     * @return MailchimpSubscriber
-     */
     public function setPending(): MailchimpSubscriber
     {
         $this->statusWhenSubscribed = 'pending';

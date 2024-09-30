@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Unit;
+namespace SubscribeMe\Test;
 
 use Http\Discovery\Psr17Factory;
 use Http\Mock\Client;
@@ -10,7 +10,6 @@ use JsonException;
 use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use SubscribeMe\Exception\ApiCredentialsException;
-use SubscribeMe\Exception\ApiResponseException;
 use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Subscriber\MailjetSubscriber;
 use SubscribeMe\ValueObject\EmailAddress;

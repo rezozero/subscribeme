@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Unit;
+namespace SubscribeMe\Test;
 
 use Http\Discovery\Psr17Factory;
 use Http\Mock\Client;
