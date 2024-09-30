@@ -2,6 +2,26 @@
 
 All notable changes to project will be documented in this file.
 
+## [2.0.0](https://github.com/rezozero/subscribeme/compare/1.2.0...2.0.0) - 2024-09-30
+
+### ⚠ Breaking changes
+
+- Use psr18, psr17 and php8.0
+- Removed deprecated SendInBlueSubscriber.php and SendInBlueDoubleOptInSubscriber.php
+
+### Features
+
+- [**breaking**]Now use psr18 and php8 + add `sendTransactionalEmail` method - ([fb4870a](https://github.com/rezozero/subscribeme/commit/fb4870ad61ee5c61c3c79bc1601cbfba70ee691c)) - eliot lauger
+- Add unit test for each method of each service - ([90a9dd3](https://github.com/rezozero/subscribeme/commit/90a9dd3b247308524dd0359650fd899bb2ef9ff4)) - eliot lauger
+- Add documentation url - ([20121f8](https://github.com/rezozero/subscribeme/commit/20121f8e237ef52b9f466d6a53a36a8d650d1ce7)) - eliot lauger
+- Fix thread + add new exception - ([0489c3e](https://github.com/rezozero/subscribeme/commit/0489c3e19531e16bb7ca44c91d336ff8d8de89b9)) - eliot lauger
+- Factory static to controller + change version of phpunit + add new test - ([37b87de](https://github.com/rezozero/subscribeme/commit/37b87deba5ea493fa5d9dc888bcf481ae1f5fe21)) - eliot lauger
+- Change exception response on transactional sender - ([ef4f50b](https://github.com/rezozero/subscribeme/commit/ef4f50b9c8f371e9b460542cfb235255148be7c1)) - eliot lauger
+- Update README.md - ([d1bd681](https://github.com/rezozero/subscribeme/commit/d1bd681d0425e8f1cd30258bbfebc94758de081d)) - eliot lauger
+- Fix thread - ([b389ec5](https://github.com/rezozero/subscribeme/commit/b389ec5e52136085dde75f3ff73dac295dd6666b)) - eliot lauger
+- Update README.md - ([7d81ff4](https://github.com/rezozero/subscribeme/commit/7d81ff43d6072ad8be4d8f731755f86e05f7103c)) - eliot lauger
+-  [**breaking**]Removed deprecated SendInBlueSubscriber.php and SendInBlueDoubleOptInSubscriber.php - ([8e55918](https://github.com/rezozero/subscribeme/commit/8e559185310726c4b0df5dce234564f8d25b5269)) - Ambroise Maupate
+
 ## [1.2.0](https://github.com/rezozero/subscribeme/compare/1.1.0...1.2.0) - 2024-05-14
 
 ### Features
