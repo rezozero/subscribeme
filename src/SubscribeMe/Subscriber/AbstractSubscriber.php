@@ -4,44 +4,43 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
-use GuzzleHttp\Client;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 
 abstract class AbstractSubscriber implements SubscriberInterface
 {
-    private Client $client;
     private ?string $apiKey = null;
     private ?string $apiSecret = null;
     private ?string $contactListId = null;
 
-    /***
-     * @param Client $client
-     */
-    public function __construct(Client $client)
-    {
-        $this->client = $client;
+    public function __construct(
+        private ClientInterface $client,
+        private RequestFactoryInterface $requestFactory,
+        private StreamFactoryInterface $streamFactory,
+    ) {
     }
 
-    /**
-     * @return Client
-     */
-    protected function getClient(): Client
+    protected function getClient(): ClientInterface
     {
         return $this->client;
     }
 
-    /**
-     * @return string
-     */
+    public function getRequestFactory(): RequestFactoryInterface
+    {
+        return $this->requestFactory;
+    }
+
+    public function getStreamFactory(): StreamFactoryInterface
+    {
+        return $this->streamFactory;
+    }
+
     public function getApiKey(): ?string
     {
         return $this->apiKey;
     }
 
-    /**
-     * @param string|null $apiKey
-     *
-     * @return SubscriberInterface
-     */
     public function setApiKey(?string $apiKey): SubscriberInterface
     {
         $this->apiKey = $apiKey;
@@ -49,19 +48,11 @@ abstract class AbstractSubscriber implements SubscriberInterface
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getApiSecret(): ?string
     {
         return $this->apiSecret;
     }
 
-    /**
-     * @param string|null $apiSecret
-     *
-     * @return SubscriberInterface
-     */
     public function setApiSecret(?string $apiSecret): SubscriberInterface
     {
         $this->apiSecret = $apiSecret;
@@ -69,18 +60,13 @@ abstract class AbstractSubscriber implements SubscriberInterface
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getContactListId(): ?string
     {
         return $this->contactListId;
     }
 
     /**
-     * @param string|null $contactListId List ID (may be multiple comma-separated)
-     *
-     * @return SubscriberInterface
+     * @param string|null $contactListId List ID (maybe multiple comma-separated)
      */
     public function setContactListId(?string $contactListId): SubscriberInterface
     {

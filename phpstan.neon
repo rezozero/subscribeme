@@ -2,7 +2,9 @@ parameters:
     level: max
     paths:
         - src
+        - tests
     excludePaths:
         - */static/*
+    ignoreErrors:
+        -   identifier: missingType.iterableValue
     reportUnmatchedIgnoredErrors: false
-    checkMissingIterableValueType: false

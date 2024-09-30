@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace SubscribeMe;
 
-use GuzzleHttp\Client;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use SubscribeMe\Subscriber\BrevoDoubleOptInSubscriber;
 use SubscribeMe\Subscriber\BrevoSubscriber;
 use SubscribeMe\Subscriber\MailchimpSubscriber;
@@ -12,33 +14,30 @@ use SubscribeMe\Subscriber\MailjetSubscriber;
 use SubscribeMe\Subscriber\SubscriberInterface;
 use SubscribeMe\Subscriber\YmlpSubscriber;
 
-class Factory
+final class Factory implements SubscriberFactoryInterface
 {
-    /**
-     * @param string $platform
-     *
-     * @return SubscriberInterface
-     */
-    public static function createFor(string $platform): SubscriberInterface
+    public function __construct(
+        private ClientInterface $client,
+        private RequestFactoryInterface $requestFactory,
+        private StreamFactoryInterface $streamFactory
+    ) {
+    }
+
+    public function createFor(string $platform): SubscriberInterface
     {
-        $client = new Client([
-            'headers' => [
-                'User-Agent' => 'rezozero/subscribeme'
-            ]
-        ]);
         switch (strtolower($platform)) {
             case 'mailjet':
-                return new MailjetSubscriber($client);
+                return new MailjetSubscriber($this->client, $this->requestFactory, $this->streamFactory);
             case 'mailchimp':
-                return new MailchimpSubscriber($client);
+                return new MailchimpSubscriber($this->client, $this->requestFactory, $this->streamFactory);
             case 'sendinblue':
             case 'brevo':
-                return new BrevoSubscriber($client);
+                return new BrevoSubscriber($this->client, $this->requestFactory, $this->streamFactory);
             case 'sendinblue-doi':
             case 'brevo-doi':
-                return new BrevoDoubleOptInSubscriber($client);
+                return new BrevoDoubleOptInSubscriber($this->client, $this->requestFactory, $this->streamFactory);
             case 'ymlp':
-                return new YmlpSubscriber($client);
+                return new YmlpSubscriber($this->client, $this->requestFactory, $this->streamFactory);
         }
         throw new \InvalidArgumentException('No subscriber class found for ' . $platform);
     }

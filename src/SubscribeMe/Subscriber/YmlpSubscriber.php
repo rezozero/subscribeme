@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\RequestException;
+use Psr\Http\Client\ClientExceptionInterface;
+use SubscribeMe\Exception\ApiCredentialsException;
 use SubscribeMe\Exception\CannotSubscribeException;
+use SubscribeMe\Exception\UnsupportedTransactionalEmailPlatformException;
 use SubscribeMe\GDPR\UserConsent;
 
 class YmlpSubscriber extends AbstractSubscriber
@@ -21,11 +22,6 @@ class YmlpSubscriber extends AbstractSubscriber
         return $this->overruleUnsubscribedBounced;
     }
 
-    /**
-     * @param bool $overruleUnsubscribedBounced
-     *
-     * @return YmlpSubscriber
-     */
     public function setOverruleUnsubscribedBounced(bool $overruleUnsubscribedBounced): YmlpSubscriber
     {
         $this->overruleUnsubscribedBounced = $overruleUnsubscribedBounced;
@@ -38,8 +34,19 @@ class YmlpSubscriber extends AbstractSubscriber
         return 'ymlp';
     }
 
-    public function subscribe(string $email, array $options, array $userConsents = [])
+    /**
+     * @inheritdoc
+     */
+    public function subscribe(string $email, array $options, array $userConsents = []): bool|int
     {
+        if (!is_string($this->getApiKey())) {
+            throw new ApiCredentialsException();
+        }
+
+        if (!is_string($this->getApiSecret())) {
+            throw new ApiCredentialsException();
+        }
+
         $params = [
             'Key' => $this->getApiSecret(),
             'Username' => $this->getApiKey(),
@@ -83,10 +90,14 @@ class YmlpSubscriber extends AbstractSubscriber
 
         $uri = 'https://www.ymlp.com/api/Contacts.Add';
         try {
-            $res = $this->getClient()->request('POST', $uri, [
-                'http_errors' => true,
-                'form_params' => $params
-            ]);
+            $bodyStreamed = $this->getStreamFactory()->createStream(http_build_query($params));
+            $request = $this->getRequestFactory()
+                ->createRequest('POST', $uri)
+                ->withAddedHeader('Content-Type', 'x-www-form-urlencoded')
+                ->withAddedHeader('User-Agent', 'rezozero/subscribeme')
+                ->withBody($bodyStreamed);
+
+            $res = $this->getClient()->sendRequest($request);
 
             if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201) {
                 /** @var array $body */
@@ -98,30 +109,26 @@ class YmlpSubscriber extends AbstractSubscriber
                      * Do not throw exception if subscriber already exists
                      */
                     return true;
-                } elseif (isset($body['Output']) && is_string($body['Output'])) {
-                    throw new CannotSubscribeException($body['Output']);
+                } elseif (isset($body['Output']) &&
+                    $body['Output'] == 'Email address already in selected groups') {
+                    /*
+                     * Do not throw exception if subscriber already exists
+                     */
+                    return true;
                 }
             }
-        } catch (ClientException $exception) {
-            $res = $exception->getResponse();
-            /** @var array $body */
-            $body = json_decode($res->getBody()->getContents(), true);
-            if (isset($body['Output']) &&
-                $body['Output'] == 'Email address already in selected groups') {
-                /*
-                 * Do not throw exception if subscriber already exists
-                 */
-                return true;
-            }
-
-            if (isset($body['Output']) && is_string($body['Output'])) {
-                throw new CannotSubscribeException($body['Output'], $exception);
-            }
-            throw new CannotSubscribeException($exception->getMessage(), $exception);
-        } catch (RequestException $exception) {
+        } catch (ClientExceptionInterface $exception) {
             throw new CannotSubscribeException($exception->getMessage(), $exception);
         }
 
         return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function sendTransactionalEmail(array $emails, string|int $emailTemplateId, array $variables = []): string
+    {
+        throw new UnsupportedTransactionalEmailPlatformException();
     }
 }

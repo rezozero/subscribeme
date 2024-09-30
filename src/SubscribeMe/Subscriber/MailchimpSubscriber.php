@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\RequestException;
+use Psr\Http\Client\ClientExceptionInterface;
+use SubscribeMe\Exception\ApiCredentialsException;
+use SubscribeMe\Exception\ApiResponseException;
+use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Exception\CannotSubscribeException;
 use SubscribeMe\GDPR\UserConsent;
+use SubscribeMe\ValueObject\EmailAddress;
 
 class MailchimpSubscriber extends AbstractSubscriber
 {
+    use ResponseValidationTrait;
     private string $dc = 'us16';
     private string $statusWhenSubscribed = 'subscribed';
 
@@ -27,11 +31,6 @@ class MailchimpSubscriber extends AbstractSubscriber
         return $this->dc;
     }
 
-    /**
-     * @param string $dc
-     *
-     * @return MailchimpSubscriber
-     */
     public function setDc(string $dc): MailchimpSubscriber
     {
         $this->dc = $dc;
@@ -39,26 +38,32 @@ class MailchimpSubscriber extends AbstractSubscriber
         return $this;
     }
 
-    /**
-     * @return MailchimpSubscriber
-     */
     public function setSubscribed(): MailchimpSubscriber
     {
         $this->statusWhenSubscribed = 'subscribed';
         return $this;
     }
 
-    /**
-     * @return MailchimpSubscriber
-     */
     public function setPending(): MailchimpSubscriber
     {
         $this->statusWhenSubscribed = 'pending';
         return $this;
     }
 
-    public function subscribe(string $email, array $options, array $userConsents = [])
+    /**
+     * @see https://mailchimp.com/developer/marketing/api/list-members/add-member-to-list/
+     * @inheritdoc
+     */
+    public function subscribe(string $email, array $options, array $userConsents = []): bool|int
     {
+        if (!is_string($this->getApiKey())) {
+            throw new ApiCredentialsException();
+        }
+
+        if (!is_string($this->getApiSecret())) {
+            throw new ApiCredentialsException();
+        }
+
         $uri = 'https://' . $this->getDc() . '.api.mailchimp.com/3.0/lists/' . $this->getContactListId() . '/members';
         $body = [
             'status' => $this->statusWhenSubscribed,
@@ -88,23 +93,18 @@ class MailchimpSubscriber extends AbstractSubscriber
         }
 
         try {
-            $res = $this->getClient()->request('POST', $uri, [
-                'http_errors' => true,
-                'auth' => [$this->getApiKey(), $this->getApiSecret()],
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                ],
-                'body' => json_encode($body)
-            ]);
+            $bodyStreamed = $this->getStreamFactory()->createStream(json_encode($body, JSON_THROW_ON_ERROR));
 
-            if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201) {
-                /** @var array $body */
-                $body = json_decode($res->getBody()->getContents(), true);
-                return $body['id'];
-            }
-        } catch (ClientException $exception) {
-            $res = $exception->getResponse();
-            if ($res->getStatusCode() === 400) {
+            $request = $this->getRequestFactory()
+                ->createRequest('POST', $uri)
+                ->withBody($bodyStreamed)
+                ->withAddedHeader('Content-Type', 'application/json')
+                ->withAddedHeader('User-Agent', 'rezozero/subscribeme')
+                ->withAddedHeader('Authorization', 'Basic '.base64_encode(sprintf('%s:%s', $this->getApiKey(), $this->getApiSecret())));
+
+            $res = $this->getClient()->sendRequest($request);
+
+            if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201 || $res->getStatusCode() === 400) {
                 /** @var array $body */
                 $body = json_decode($res->getBody()->getContents(), true);
                 if ($body['title'] == 'Member Exists') {
@@ -113,13 +113,104 @@ class MailchimpSubscriber extends AbstractSubscriber
                      */
                     return true;
                 }
+                if ($body['id'] !== null) {
+                    return $body['id'];
+                }
+                return false;
             }
-
-            throw new CannotSubscribeException($exception->getMessage(), $exception);
-        } catch (RequestException $exception) {
+        } catch (ClientExceptionInterface $exception) {
             throw new CannotSubscribeException($exception->getMessage(), $exception);
         }
 
         return false;
+    }
+
+    /**
+     * @see https://mailchimp.com/developer/transactional/api/messages/send-using-message-template/
+     * @inheritdoc
+     */
+    public function sendTransactionalEmail(array $emails, string|int $emailTemplateId, array $variables = []): string
+    {
+        if (empty($emails)) {
+            throw new \InvalidArgumentException('Emails information missing');
+        }
+
+        if (empty($emailTemplateId)) {
+            throw new \InvalidArgumentException('Template Id missing');
+        }
+
+        if (!is_string($this->getApiKey())) {
+            throw new ApiCredentialsException();
+        }
+
+        $variables = $this->transformVariables($variables);
+
+        $body = [
+            'template_name' => (string) $emailTemplateId,
+            'template_content' => [],
+            'message' => [
+                'to' => array_map(function (EmailAddress $emailAddress) {
+                    return [
+                        'email' => $emailAddress->getEmail(),
+                        'name' => $emailAddress->getName(),
+                        'type' => 'to'
+                    ];
+                }, $emails),
+                'global_merge_vars' => $variables
+            ],
+            'key' => $this->getApiKey(),
+        ];
+
+        $body = $this->getStreamFactory()->createStream(json_encode($body, JSON_THROW_ON_ERROR));
+
+        try {
+            $request = $this->getRequestFactory()
+                ->createRequest('POST', 'https://mandrillapp.com/api/1.0/messages/send-template')
+                ->withBody($body)
+                ->withAddedHeader('Content-Type', 'application/json')
+                ->withAddedHeader('User-Agent', 'rezozero/subscribeme');
+
+            $response = $this->getClient()->sendRequest($request);
+            return $this->validateResponse($response);
+        } catch (ClientExceptionInterface $exception) {
+            throw new CannotSendTransactionalEmailException(previous: $exception);
+        } catch (ApiResponseException $exception) {
+            throw new CannotsendTransactionalEmailException($exception->getResponseBody()['message']);
+        }
+    }
+
+    private function transformVariables(array $variables): array
+    {
+        $valid = true;
+        foreach ($variables as $key => $value) {
+            if (!is_string($key)) {
+                $valid = false;
+                break;
+            }
+
+            if (is_array($value)) {
+                foreach ($value as $nestedKey => $nestedValue) {
+                    // @phpstan-ignore-next-line
+                    if (!is_string($nestedKey) || !(is_string($nestedValue) || is_int($nestedValue) || is_bool($nestedValue))) {
+                        $valid = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!$valid) {
+            throw new \InvalidArgumentException('Variables signature was invalid');
+        }
+
+        if (!empty($variables)) {
+            $variables = array_map(function ($key, $value) {
+                return [
+                    'name' => $key,
+                    'content' => $value
+                ];
+            }, array_keys($variables), $variables);
+        }
+        return $variables;
     }
 }

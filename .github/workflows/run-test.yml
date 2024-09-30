@@ -18,7 +18,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                php-version: ['7.4', '8.0', '8.1', '8.2', '8.3']
+                php-version: ['8.0', '8.1', '8.2', '8.3']
         steps:
             - uses: shivammathur/setup-php@v2
               with:
@@ -35,6 +35,8 @@ jobs:
             - name: Install Dependencies
               run: composer install --no-scripts --no-ansi --no-interaction --no-progress
             - name: Run PHP Code Sniffer
-              run: vendor/bin/phpcs -p ./src
+              run: vendor/bin/phpcs -p
             - name: Run PHPStan
               run: vendor/bin/phpstan analyse --no-progress -c phpstan.neon
+            - name : Run PHPUnit
+              run: vendor/bin/phpunit --colors=never

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
+use JsonException;
 use SubscribeMe\GDPR\UserConsent;
+use SubscribeMe\ValueObject\EmailAddress;
 
 interface SubscriberInterface
 {
@@ -20,8 +22,17 @@ interface SubscriberInterface
      * @param string      $email
      * @param array       $options
      * @param UserConsent[] $userConsents
-     *
-     * @return mixed Contact ID if succeeded or false
+     * @return bool|int Contact ID if succeeded or false
+     * @throws JsonException
      */
-    public function subscribe(string $email, array $options, array $userConsents = []);
+    public function subscribe(string $email, array $options, array $userConsents = []): bool|int;
+
+    /**
+     * @param array<EmailAddress> $emails
+     * @param string|int $emailTemplateId
+     * @param array<string, string|int|bool|array<string|int|bool>> $variables
+     * @return string Platform Response body after sending
+     * @throws JsonException
+     */
+    public function sendTransactionalEmail(array $emails, string|int $emailTemplateId, array $variables = []): string;
 }
