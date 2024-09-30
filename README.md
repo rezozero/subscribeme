@@ -66,17 +66,18 @@ $subscriber->subscribe('hello@super.test', ['Name' => 'John Doe'], [$userConsent
 $subscriber->sendTransactionalEmail($emails, $emailTemplateId, $variables)
 ```
 
-### SYMFONY Implementation
+### Symfony usage
 
-With symfony, you don't have to implement the factory,
-you can directly implement the interface and thus make the code generic,
+With Symfony, you don't have to use the `Factory`,
+you can directly make your code generic by depending on `SubscriberInterface`,
 which means that if you want to change platform later,
-you just have to change the register implementation.
+you will just have to change the registration.
 
 ```php
-class YourClass
+final class YourClass
 {
     public function __construct(
+        // Make it generic, let Symfony provide the right service for you
         private SubscriberInterface $subscriber
     ) {
     }
@@ -97,11 +98,12 @@ class YourClass
 # services.yaml
 services:
   SubscribeMe\Subscriber\SubscriberInterface:
-    # here call the class of the platform used in your project (example with mailjet)
+    # Here register the platform class used in your project (example with Mailjet)
     class: SubscribeMe\Subscriber\MailjetSubscriber
+    # Here comes the Symfony magic, PSR17 and PSR18 will be automatically provided
     autowire: true
     calls:
-      # here call method necessary on the platform (mailjet need apiKey and apiSecret)
+      # Here call necessary methods according to your platform (Mailjet need apiKey and apiSecret)
       - setApiKey: [ '%env(string:APP_MAILJET_API_KEY)%' ]
       - setApiSecret: [ '%env(string:APP_MAILJET_API_SECRET_KEY)%' ]
 ```
