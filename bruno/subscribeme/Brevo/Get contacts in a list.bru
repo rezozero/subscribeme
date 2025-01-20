@@ -1,0 +1,15 @@
+meta {
+  name: Get contacts in a list
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{brevo_base_url}}/v3/contacts/lists/:listId/contacts
+  body: none
+  auth: none
+}
+
+params:path {
+  listId: 
+}

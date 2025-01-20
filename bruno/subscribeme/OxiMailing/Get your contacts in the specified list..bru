@@ -1,0 +1,20 @@
+meta {
+  name: Get your contacts in the specified list.
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{oximailing_base_url}}/lists/:listId/contacts
+  body: none
+  auth: basic
+}
+
+params:path {
+  listId: 841
+}
+
+auth:basic {
+  username: {{oximailing_login}}
+  password: {{oximailing_password}}
+}

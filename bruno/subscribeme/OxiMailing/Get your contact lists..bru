@@ -1,0 +1,16 @@
+meta {
+  name: Get your contact lists.
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{oximailing_base_url}}/lists
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: {{oximailing_login}}
+  password: {{oximailing_password}}
+}

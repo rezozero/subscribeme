@@ -11,6 +11,7 @@ use SubscribeMe\Subscriber\BrevoDoubleOptInSubscriber;
 use SubscribeMe\Subscriber\BrevoSubscriber;
 use SubscribeMe\Subscriber\MailchimpSubscriber;
 use SubscribeMe\Subscriber\MailjetSubscriber;
+use SubscribeMe\Subscriber\OxiMailingSubscriber;
 use SubscribeMe\Subscriber\SubscriberInterface;
 use SubscribeMe\Subscriber\YmlpSubscriber;
 
@@ -38,6 +39,8 @@ final class Factory implements SubscriberFactoryInterface
                 return new BrevoDoubleOptInSubscriber($this->client, $this->requestFactory, $this->streamFactory);
             case 'ymlp':
                 return new YmlpSubscriber($this->client, $this->requestFactory, $this->streamFactory);
+            case 'oximailing':
+                return new OxiMailingSubscriber($this->client, $this->requestFactory, $this->streamFactory);
         }
         throw new \InvalidArgumentException('No subscriber class found for ' . $platform);
     }

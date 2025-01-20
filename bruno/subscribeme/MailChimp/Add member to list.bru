@@ -1,0 +1,26 @@
+meta {
+  name: Add member to list
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{mailchimp_base_url}}/lists/:listId/members
+  body: json
+  auth: basic
+}
+
+params:path {
+  listId: 123
+}
+
+auth:basic {
+  username: {{mailchimp_login}}
+  password: {{mailchimp_password}}
+}
+
+body:json {
+  {
+    "email_address": "john.smith@contact.com"
+  }
+}

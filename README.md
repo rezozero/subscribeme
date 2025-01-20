@@ -323,3 +323,27 @@ $variables = [
 ];
 $subscriber->sendTransactionalEmail($emails, $templateEmail, $variables);
 ```
+
+
+## OxiMailing
+
+### OxiMailing subscriber options
+
+```php
+$subscriber = $factory->createFor('oxymailing');
+// OxiMailing requires an API Key and an API Secret
+$subscriber->setApiKey('mailjet_api_key');
+$subscriber->setApiSecret('mailjet_api_secret')
+// OxiMailing list identifiers are int. You can only subscribe user to one list
+$subscriber->setContactListId('123');
+// OxiMailing Accept 3 modes
+//Allows you to explain what to do with new duplicates :
+//- ignore : remove duplicates
+//- insert : don't do anything (all contacts are imported even duplicates)
+//- update : update existing contacts information rather than adding duplicates
+$subscriber->subscribe('hello@super.test', ['mode' => 'update']);
+```
+
+### OxiMailing sender transactional email options
+
+OxiMailing does not support transactional email, we throw an `UnsupportedTransactionalEmailPlatformException`.

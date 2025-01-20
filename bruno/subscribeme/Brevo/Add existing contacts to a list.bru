@@ -1,0 +1,23 @@
+meta {
+  name: Add existing contacts to a list
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{brevo_base_url}}/v3/contacts/lists/:listId/contacts/add
+  body: json
+  auth: none
+}
+
+params:path {
+  listId: 
+}
+
+body:json {
+  {
+    "emails": [
+      "john.smith@contact.com"
+    ]
+  }
+}
