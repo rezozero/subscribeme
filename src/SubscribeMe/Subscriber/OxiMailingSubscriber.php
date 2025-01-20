@@ -4,15 +4,10 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
-use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
-use SubscribeMe\Exception\ApiResponseException;
-use SubscribeMe\Exception\CannotSendTransactionalEmailException;
-use SubscribeMe\Exception\CannotSubscribeException;
 use SubscribeMe\Exception\ApiCredentialsException;
+use SubscribeMe\Exception\CannotSubscribeException;
 use SubscribeMe\Exception\UnsupportedTransactionalEmailPlatformException;
-use SubscribeMe\GDPR\UserConsent;
-use SubscribeMe\ValueObject\EmailAddress;
 
 class OxiMailingSubscriber extends AbstractSubscriber
 {
@@ -36,29 +31,32 @@ class OxiMailingSubscriber extends AbstractSubscriber
             throw new ApiCredentialsException();
         }
 
+        $mode = $options['mode'] ?? 'ignore';
+        unset($options['mode']);
+
+        $contacts[$email] = $options;
+
         $body = [
-            'mode' => $options['mode'],
-            'contacts' => [$email],
+            'mode' => $mode,
+            'contacts' => json_encode($contacts, JSON_THROW_ON_ERROR),
         ];
+        $queryParams = http_build_query($body);
 
-        $uri = 'https://https://api.oximailing.com/lists/' . $this->getContactListId() . '/contacts';
+        $uri = 'https://https://api.oximailing.com/lists/' . $this->getContactListId() . '/contacts?' . $queryParams;
         try {
-            $bodyStreamed = $this->getStreamFactory()->createStream(json_encode($body, JSON_THROW_ON_ERROR));
-
             $request = $this->getRequestFactory()
                 ->createRequest('POST', $uri)
-                ->withBody($bodyStreamed)
-                ->withAddedHeader('Content-Type', 'application/json')
                 ->withAddedHeader('User-Agent', 'rezozero/subscribeme')
                 ->withAddedHeader('Authorization', 'Basic '.base64_encode(sprintf('%s:%s', $this->getApiKey(), $this->getApiSecret())));
 
             $res = $this->getClient()->sendRequest($request);
 
+
             if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201) {
                 /** @var array $body */
                 $body = json_decode($res->getBody()->getContents(), true);
-                if ($body['Total'] >= 1) {
-                    return $body['Data'][0]['ContactID'];
+                if ($body['added'] == 1 || $body['ignored'] == 1 || $body['updated'] == 1) {
+                    return true;
                 }
             }
         } catch (ClientExceptionInterface $exception) {

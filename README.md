@@ -330,10 +330,10 @@ $subscriber->sendTransactionalEmail($emails, $templateEmail, $variables);
 ### OxiMailing subscriber options
 
 ```php
-$subscriber = $factory->createFor('oxymailing');
+$subscriber = $factory->createFor('oximailing');
 // OxiMailing requires an API Key and an API Secret
-$subscriber->setApiKey('mailjet_api_key');
-$subscriber->setApiSecret('mailjet_api_secret')
+$subscriber->setApiKey('oximailing_api_key');
+$subscriber->setApiSecret('oximailing_api_secret')
 // OxiMailing list identifiers are int. You can only subscribe user to one list
 $subscriber->setContactListId('123');
 // OxiMailing Accept 3 modes

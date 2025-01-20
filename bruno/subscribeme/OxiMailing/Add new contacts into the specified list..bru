@@ -5,9 +5,14 @@ meta {
 }
 
 post {
-  url: {{oximailing_base_url}}/lists/:listId/contacts
+  url: {{oximailing_base_url}}/lists/:listId/contacts?contacts={"email1@example.com":{"customerName":"Dupont","customerId":123}} &method=ignore
   body: none
   auth: basic
+}
+
+params:query {
+  contacts: {"email1@example.com":{"customerName":"Dupont","customerId":123}} 
+  method: ignore
 }
 
 params:path {
@@ -17,4 +22,21 @@ params:path {
 auth:basic {
   username: {{oximailing_login}}
   password: {{oximailing_password}}
+}
+
+body:json {
+  {
+    "contacts" : {
+      "email@rezo-zero.com": {
+        "firstName": "firstName",
+        "lastName": "lastName"
+      }
+    },
+    "mode" : "ignore"
+  }
+}
+
+body:multipart-form {
+  ~contacts: {"email1@example.com":{"customerName":"Dupont","customerId":123}}
+  ~mode: ignore
 }
