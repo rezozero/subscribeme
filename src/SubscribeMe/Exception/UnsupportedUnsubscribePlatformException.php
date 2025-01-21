@@ -8,6 +8,6 @@ final class UnsupportedUnsubscribePlatformException extends \LogicException
 {
     public function __construct()
     {
-        parent::__construct('The platform does not have an unsubscribe endpoint', 0);
+        parent::__construct('The platform does not support unsubscribing email addresses.', 0);
     }
 }
