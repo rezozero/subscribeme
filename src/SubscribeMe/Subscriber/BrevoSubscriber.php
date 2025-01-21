@@ -217,7 +217,7 @@ class BrevoSubscriber extends AbstractSubscriber
 
             $bodyStreamed = $this->getStreamFactory()->createStream(json_encode($body, JSON_THROW_ON_ERROR));
 
-            $uri = 'https://api.brevo.com/v3/contacts/lists/listId/contacts/remove';
+            $uri = 'https://api.brevo.com/v3/contacts/lists/'.$this->getContactListId().'/contacts/remove';
 
             $request = $this->getRequestFactory()
                 ->createRequest('POST', $uri)

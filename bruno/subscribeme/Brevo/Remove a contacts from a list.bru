@@ -1,0 +1,25 @@
+meta {
+  name: Remove a contacts from a list
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{brevo_base_url}}/v3/contacts/lists/:listId/contacts/remove
+  body: json
+  auth: none
+}
+
+params:path {
+  listId: 
+}
+
+headers {
+  content-type: application/json
+}
+
+body:json {
+  {
+    "emails": "john.smith@contact.com"
+  }
+}

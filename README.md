@@ -206,6 +206,10 @@ $variables = [
 $subscriber->sendTransactionalEmail($emails, $emailTemplateId, $variables);
 ```
 
+### Mailchimp options unsubscribing
+
+Mailchimp does not support unsubscribing a user from a list with their email address, we throw an `UnsupportedUnsubscribePlatformException`.
+
 ## YMLP
 
 ### YMLP options subscriber
@@ -227,6 +231,10 @@ For getting your additional fields ID: see https://www.ymlp.com/api/Fields.GetLi
 ### YMLP options sender transactional email
 
 YMLP does not support transactional email, we throw an `UnsupportedTransactionalEmailPlatformException`.
+
+### YMLP options unsubscribing
+
+YMLP does not support unsubscribing a user from a list with their email address, we throw an `UnsupportedUnsubscribePlatformException`.
 
 ## Brevo
 
@@ -286,6 +294,19 @@ $variables = [
 $subscriber->sendTransactionalEmail($emails, $templateEmail, $variables);
 ```
 
+### Brevo options unsubscribing
+
+See https://developers.brevo.com/reference/removecontactfromlist
+
+```php
+$subscriber = $factory->createFor('brevo');
+// Brevo only requires an API Key
+$subscriber->setApiKey('brevo_api_key');
+// Use Just One list Id in same time for remove contact from a list
+$subscriber->setContactListId('3'); 
+$subscriber->unsubscribe('jimmy98@example.com');
+```
+
 ## Mailjet
 
 ### Mailjet subscriber options
@@ -324,6 +345,10 @@ $variables = [
 $subscriber->sendTransactionalEmail($emails, $templateEmail, $variables);
 ```
 
+### MailJet options unsubscribing
+
+MailJet does not support unsubscribing a user from a list with their email address, we throw an `UnsupportedUnsubscribePlatformException`.
+
 
 ## OxiMailing
 
@@ -347,3 +372,17 @@ $subscriber->subscribe('hello@super.test', ['mode' => 'update']);
 ### OxiMailing sender transactional email options
 
 OxiMailing does not support transactional email, we throw an `UnsupportedTransactionalEmailPlatformException`.
+
+### OxiMailing options unsubscribing
+
+See https://api.oximailing.com/doc/#/contacts/delete_lists__ListId__contacts
+
+```php
+$subscriber = $factory->createFor('oximailing');
+// OxiMailing requires an API Key and an API Secret
+$subscriber->setApiKey('oximailing_api_key');
+$subscriber->setApiSecret('oximailing_api_secret')
+// You can only unsubscribe one user to one list
+$subscriber->setContactListId('123');
+$subscriber->unsubscribe('jimmy98@example.com');
+```
