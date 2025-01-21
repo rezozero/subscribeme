@@ -2,6 +2,12 @@
 
 All notable changes to project will be documented in this file.
 
+## [2.1.0](https://github.com/rezozero/subscribeme/compare/2.0.0...2.1.0) - 2025-01-21
+
+### Features
+
+- Add oxiMailing service and bruno collection for all services ([#2](https://github.com/rezozero/subscribeme/issues/2)) - ([71b7517](https://github.com/rezozero/subscribeme/commit/71b751700c22e8810c7d952dbef9d7594cad09ca)) - Eliot
+
 ## [2.0.0](https://github.com/rezozero/subscribeme/compare/1.2.0...2.0.0) - 2024-09-30
 
 ### ⚠ Breaking changes
