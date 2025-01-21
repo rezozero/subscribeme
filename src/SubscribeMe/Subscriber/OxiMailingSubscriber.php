@@ -36,7 +36,9 @@ class OxiMailingSubscriber extends AbstractSubscriber
         }
 
         $mode = $options['mode'] ?? 'ignore';
-        unset($options['mode']);
+        if (isset($options['mode'])) {
+            unset($options['mode']);
+        }
 
         $contacts[$email] = $options;
 

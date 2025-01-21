@@ -366,6 +366,9 @@ $subscriber->setContactListId('123');
 //- ignore : remove duplicates
 //- insert : don't do anything (all contacts are imported even duplicates)
 //- update : update existing contacts information rather than adding duplicates
+// Defaults to mode: ignore
+$subscriber->subscribe('hello@super.test');
+// You can override subscription mode using options array
 $subscriber->subscribe('hello@super.test', ['mode' => 'update']);
 ```
 
