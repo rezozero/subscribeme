@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace SubscribeMe\Subscriber;
 
 use JsonException;
+use SubscribeMe\Exception\UnsupportedTransactionalEmailPlatformException;
+use SubscribeMe\Exception\UnsupportedUnsubscribePlatformException;
 use SubscribeMe\GDPR\UserConsent;
 use SubscribeMe\ValueObject\EmailAddress;
 
@@ -28,11 +30,18 @@ interface SubscriberInterface
     public function subscribe(string $email, array $options, array $userConsents = []): bool|int;
 
     /**
+     * @param string $email
+     * @return bool true on succeeded or false
+     * @throws JsonException|UnsupportedUnsubscribePlatformException
+     */
+    public function unsubscribe(string $email): bool;
+
+    /**
      * @param array<EmailAddress> $emails
      * @param string|int $emailTemplateId
      * @param array<string, string|int|bool|array<string|int|bool>> $variables
      * @return string Platform Response body after sending
-     * @throws JsonException
+     * @throws JsonException|UnsupportedTransactionalEmailPlatformException
      */
     public function sendTransactionalEmail(array $emails, string|int $emailTemplateId, array $variables = []): string;
 }

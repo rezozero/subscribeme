@@ -1,0 +1,15 @@
+meta {
+  name: Get contacts in a list
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{mailjet_base_url}}/v3/REST/contactslist/:listId
+  body: none
+  auth: none
+}
+
+params:path {
+  listId: 
+}

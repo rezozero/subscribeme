@@ -8,6 +8,7 @@ use Psr\Http\Client\ClientExceptionInterface;
 use SubscribeMe\Exception\ApiCredentialsException;
 use SubscribeMe\Exception\CannotSubscribeException;
 use SubscribeMe\Exception\UnsupportedTransactionalEmailPlatformException;
+use SubscribeMe\Exception\UnsupportedUnsubscribePlatformException;
 use SubscribeMe\GDPR\UserConsent;
 
 class YmlpSubscriber extends AbstractSubscriber
@@ -45,6 +46,10 @@ class YmlpSubscriber extends AbstractSubscriber
 
         if (!is_string($this->getApiSecret())) {
             throw new ApiCredentialsException();
+        }
+
+        if (!is_string($this->getContactListId())) {
+            throw new CannotSubscribeException('Contact list id is required for subscribe');
         }
 
         $params = [
@@ -122,6 +127,14 @@ class YmlpSubscriber extends AbstractSubscriber
         }
 
         return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function unsubscribe(string $email): bool
+    {
+        throw new UnsupportedUnsubscribePlatformException();
     }
 
     /**

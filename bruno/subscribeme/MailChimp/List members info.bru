@@ -1,0 +1,16 @@
+meta {
+  name: List members info
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{mailchimp_base_url}}/lists/:listId/members
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: {{mailchimp_login}}
+  password: {{mailchimp_password}}
+}

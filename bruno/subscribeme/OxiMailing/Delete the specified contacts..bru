@@ -1,0 +1,28 @@
+meta {
+  name: Delete the specified contacts.
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{oximailing_base_url}}/lists/:listId/contacts?emails=email1@example.com
+  body: none
+  auth: basic
+}
+
+params:query {
+  emails: email1@example.com
+}
+
+params:path {
+  listId: 841
+}
+
+auth:basic {
+  username: {{oximailing_login}}
+  password: {{oximailing_password}}
+}
+
+body:multipart-form {
+  emails: email1@example.com
+}

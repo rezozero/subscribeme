@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "subscribeme",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

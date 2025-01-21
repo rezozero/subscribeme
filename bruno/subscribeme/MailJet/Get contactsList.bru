@@ -1,0 +1,16 @@
+meta {
+  name: Get contactsList
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{mailjet_base_url}}/v3/REST/contactslist/
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: {{mailjet_login}}
+  password: {{mailjet_password}}
+}

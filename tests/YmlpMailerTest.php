@@ -30,6 +30,7 @@ class YmlpMailerTest extends TestCase
 
         $ymlpSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
         $ymlpSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
+        $ymlpSubscriber->setContactListId('123');
         $returnCode = $ymlpSubscriber->subscribe("jdoe@example.com", []);
 
         $requests = $client->getRequests();
@@ -39,7 +40,7 @@ class YmlpMailerTest extends TestCase
             'Username' => $ymlpSubscriber->getApiKey(),
             'OverruleUnsubscribedBounced' => 0,
             'Email' => 'jdoe@example.com',
-            'GroupID' => 0,
+            'GroupID' => 123,
             'Output' => 'JSON'
         ];
         $body = http_build_query($body, '', '&');
@@ -73,11 +74,12 @@ class YmlpMailerTest extends TestCase
 
         $ymlpSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
         $ymlpSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
+        $ymlpSubscriber->setContactListId('123');
         $returnCode = $ymlpSubscriber->subscribe("jdoe@example.com", []);
 
         $requests = $client->getRequests();
 
-        $body = "Key=df30148e-6cda-43ae-8665-9904f5f4f12a&Username=3f62c1f4-efb7-4bc7-b76d-0c2217d307b0&OverruleUnsubscribedBounced=0&Email=jdoe%40example.com&GroupID=0&Output=JSON";
+        $body = "Key=df30148e-6cda-43ae-8665-9904f5f4f12a&Username=3f62c1f4-efb7-4bc7-b76d-0c2217d307b0&OverruleUnsubscribedBounced=0&Email=jdoe%40example.com&GroupID=123&Output=JSON";
 
         $this->assertTrue($returnCode);
         $this->assertCount(1, $requests);

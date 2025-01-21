@@ -1,0 +1,16 @@
+meta {
+  name: Get all the lists
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{brevo_base_url}}/v3/contacts/lists
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: {{brevo_login}}
+  password: {{brevo_password}}
+}

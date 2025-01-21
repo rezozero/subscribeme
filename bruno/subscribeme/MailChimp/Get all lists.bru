@@ -1,0 +1,16 @@
+meta {
+  name: Get all lists
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{mailchimp_base_url}}/lists/
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: {{mailchimp_login}}
+  password: {{mailchimp_password}}
+}

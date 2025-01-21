@@ -9,6 +9,7 @@ use SubscribeMe\Exception\ApiCredentialsException;
 use SubscribeMe\Exception\ApiResponseException;
 use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Exception\CannotSubscribeException;
+use SubscribeMe\Exception\UnsupportedUnsubscribePlatformException;
 use SubscribeMe\GDPR\UserConsent;
 use SubscribeMe\ValueObject\EmailAddress;
 
@@ -32,6 +33,10 @@ class MailjetSubscriber extends AbstractSubscriber
 
         if (!is_string($this->getApiSecret())) {
             throw new ApiCredentialsException();
+        }
+
+        if (!is_string($this->getContactListId())) {
+            throw new CannotSubscribeException('Contact list id is required for subscribe');
         }
 
         $name = null;
@@ -147,5 +152,13 @@ class MailjetSubscriber extends AbstractSubscriber
         } catch (ApiResponseException $exception) {
             throw new CannotsendTransactionalEmailException($exception->getResponseBody()['ErrorMessage']);
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function unsubscribe(string $email): bool
+    {
+        throw new UnsupportedUnsubscribePlatformException();
     }
 }

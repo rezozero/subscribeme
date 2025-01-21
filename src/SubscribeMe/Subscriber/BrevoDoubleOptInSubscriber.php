@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SubscribeMe\Subscriber;
 
 use SubscribeMe\Exception\CannotSubscribeException;
+use SubscribeMe\Exception\UnsupportedUnsubscribePlatformException;
 
 final class BrevoDoubleOptInSubscriber extends BrevoSubscriber
 {
