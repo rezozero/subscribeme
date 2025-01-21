@@ -31,6 +31,10 @@ class OxiMailingSubscriber extends AbstractSubscriber
             throw new ApiCredentialsException();
         }
 
+        if (!is_string($this->getContactListId())) {
+            throw new CannotSubscribeException('Contact list id is required for subscribe');
+        }
+
         $mode = $options['mode'] ?? 'ignore';
         unset($options['mode']);
 
@@ -42,7 +46,7 @@ class OxiMailingSubscriber extends AbstractSubscriber
         ];
         $queryParams = http_build_query($body);
 
-        $uri = 'https://https://api.oximailing.com/lists/' . $this->getContactListId() . '/contacts?' . $queryParams;
+        $uri = 'https://api.oximailing.com/lists/' . $this->getContactListId() . '/contacts?' . $queryParams;
         try {
             $request = $this->getRequestFactory()
                 ->createRequest('POST', $uri)
@@ -72,5 +76,47 @@ class OxiMailingSubscriber extends AbstractSubscriber
     public function sendTransactionalEmail(array $emails, string|int $emailTemplateId, array $variables = []): string
     {
         throw new UnsupportedTransactionalEmailPlatformException();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function unsubscribe(string $email): bool
+    {
+        if (!is_string($this->getApiKey())) {
+            throw new ApiCredentialsException();
+        }
+
+        if (!is_string($this->getApiSecret())) {
+            throw new ApiCredentialsException();
+        }
+
+        if (!is_string($this->getContactListId())) {
+            throw new CannotSubscribeException('Contact list id is required for subscribe');
+        }
+
+        $queryParams = http_build_query(['emails' => $email]);
+
+        $uri = 'https://api.oximailing.com/lists/' . $this->getContactListId() . '/contacts?' . $queryParams;
+        try {
+            $request = $this->getRequestFactory()
+                ->createRequest('DELETE', $uri)
+                ->withAddedHeader('User-Agent', 'rezozero/subscribeme')
+                ->withAddedHeader('Authorization', 'Basic '.base64_encode(sprintf('%s:%s', $this->getApiKey(), $this->getApiSecret())));
+
+            $res = $this->getClient()->sendRequest($request);
+
+
+            if ($res->getStatusCode() === 200 ||  $res->getStatusCode() === 201) {
+                /** @var array $body */
+                $body = json_decode($res->getBody()->getContents(), true);
+                if ($body['deleted'] == 1 || $body['not_found'] == 1) {
+                    return true;
+                }
+            }
+        } catch (ClientExceptionInterface $exception) {
+            throw new CannotSubscribeException($exception->getMessage(), $exception);
+        }
+        return false;
     }
 }

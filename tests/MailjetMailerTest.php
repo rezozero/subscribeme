@@ -34,6 +34,7 @@ class MailjetMailerTest extends TestCase
 
         $mailjetSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
         $mailjetSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
+        $mailjetSubscriber->setContactListId('123');
         $returnCode = $mailjetSubscriber->subscribe("passenger@mailjet.com", $options);
 
         $requests = $client->getRequests();
@@ -75,6 +76,7 @@ class MailjetMailerTest extends TestCase
 
         $mailjetSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
         $mailjetSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
+        $mailjetSubscriber->setContactListId('123');
         $returnCode = $mailjetSubscriber->subscribe("passenger@mailjet.com", $options);
 
         $requests = $client->getRequests();

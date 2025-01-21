@@ -10,6 +10,7 @@ use SubscribeMe\Exception\ApiResponseException;
 use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Exception\CannotSubscribeException;
 use SubscribeMe\Exception\ApiCredentialsException;
+use SubscribeMe\Exception\UnsupportedUnsubscribePlatformException;
 use SubscribeMe\GDPR\UserConsent;
 use SubscribeMe\ValueObject\EmailAddress;
 
@@ -194,5 +195,52 @@ class BrevoSubscriber extends AbstractSubscriber
         } catch (ApiResponseException $exception) {
             throw new CannotsendTransactionalEmailException($exception->getResponseBody()['message']);
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function unsubscribe(string $email): bool
+    {
+        try {
+            if (!is_string($this->getApiKey())) {
+                throw new ApiCredentialsException();
+            }
+
+            if (!is_string($this->getContactListId())) {
+                throw new CannotSubscribeException('Contact list id is required for subscribe');
+            }
+
+            $body = [
+                'emails' => [$email],
+            ];
+
+            $bodyStreamed = $this->getStreamFactory()->createStream(json_encode($body, JSON_THROW_ON_ERROR));
+
+            $uri = 'https://api.brevo.com/v3/contacts/lists/listId/contacts/remove';
+
+            $request = $this->getRequestFactory()
+                ->createRequest('POST', $uri)
+                ->withBody($bodyStreamed)
+                ->withAddedHeader('Content-Type', 'application/json')
+                ->withAddedHeader('api-key', $this->getApiKey())
+                ->withAddedHeader('User-Agent', 'rezozero/subscribeme')
+            ;
+
+            $res = $this->getClient()->sendRequest($request);
+
+            // https://developers.sendinblue.com/reference/createcontact
+            if ($res->getStatusCode() === 200 || $res->getStatusCode() === 201) {
+                /** @var array $body */
+                $body = json_decode($res->getBody()->getContents(), true);
+                if (isset($body['success'])) {
+                    return true;
+                }
+            }
+        } catch (ClientExceptionInterface $exception) {
+            throw new CannotSubscribeException($exception->getMessage(), $exception);
+        }
+
+        return false;
     }
 }
