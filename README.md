@@ -7,7 +7,7 @@ Unified Email Service Library: A simple mailing list subscriber factory that inc
 ## Supported platforms
 
 - Mailjet
-- Mailchimp (use mandrille for transactionnal emails)
+- Mailchimp (use mandrille for transactional emails)
 - Brevo (ex SendInBlue)
 - Brevo DOI (Double Opt-In) (ex SendInBlue)
 - YMLP
