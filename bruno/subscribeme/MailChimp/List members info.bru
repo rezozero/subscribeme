@@ -10,7 +10,11 @@ get {
   auth: basic
 }
 
+params:path {
+  listId: 558e7afb37
+}
+
 auth:basic {
-  username: {{mailchimp_login}}
-  password: {{mailchimp_password}}
+  username: anystring
+  password: {{mailchimp_api_key}}
 }
