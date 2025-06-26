@@ -61,10 +61,6 @@ class MailchimpSubscriber extends AbstractSubscriber
             throw new ApiCredentialsException();
         }
 
-        if (!is_string($this->getApiSecret())) {
-            throw new ApiCredentialsException();
-        }
-
         if (!is_string($this->getContactListId())) {
             throw new CannotSubscribeException('Contact list id is required for subscribe');
         }
@@ -105,7 +101,7 @@ class MailchimpSubscriber extends AbstractSubscriber
                 ->withBody($bodyStreamed)
                 ->withAddedHeader('Content-Type', 'application/json')
                 ->withAddedHeader('User-Agent', 'rezozero/subscribeme')
-                ->withAddedHeader('Authorization', 'Basic '.base64_encode(sprintf('%s:%s', $this->getApiKey(), $this->getApiSecret())));
+                ->withAddedHeader('Authorization', 'Basic '.base64_encode(sprintf('anystring:%s', $this->getApiKey())));
 
             $res = $this->getClient()->sendRequest($request);
 

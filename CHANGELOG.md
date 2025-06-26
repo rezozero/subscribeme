@@ -2,6 +2,12 @@
 
 All notable changes to project will be documented in this file.
 
+## [2.2.0](https://github.com/rezozero/subscribeme/compare/2.1.0...2.2.0) - 2025-06-24
+
+### Refactor
+
+- Remove Mailchimp API Secret usage and update authentication logic, doc associate, bruno files and tests - ([e7e92c1](https://github.com/rezozero/subscribeme/commit/e7e92c17021b87bcc4a9b89455cd17c82f831b6c)) - eliot lauger
+
 ## [2.1.0](https://github.com/rezozero/subscribeme/compare/2.0.0...2.1.0) - 2025-01-21
 
 ### Features

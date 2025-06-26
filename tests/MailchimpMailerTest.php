@@ -31,7 +31,6 @@ class MailchimpMailerTest extends TestCase
 
         $mailchimpSubscriber->setContactListId('1');
         $mailchimpSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
-        $mailchimpSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
         $returnCode = $mailchimpSubscriber->subscribe("jdoe@example.com", []);
 
         $requests = $client->getRequests();
@@ -47,7 +46,7 @@ class MailchimpMailerTest extends TestCase
         $this->assertCount(1, $requests);
         $content = $requests[0]->getBody()->getContents();
         $this->assertEquals('application/json', $requests[0]->getHeaders()['Content-Type'][0]);
-        $this->assertEquals('Basic ' . base64_encode(sprintf('%s:%s', '3f62c1f4-efb7-4bc7-b76d-0c2217d307b0', 'df30148e-6cda-43ae-8665-9904f5f4f12a')), $requests[0]->getHeaders()['Authorization'][0]);
+        $this->assertEquals('Basic ' . base64_encode(sprintf('%s:%s', 'anystring', '3f62c1f4-efb7-4bc7-b76d-0c2217d307b0')), $requests[0]->getHeaders()['Authorization'][0]);
         $this->assertEquals('rezozero/subscribeme', $requests[0]->getHeaders()['User-Agent'][0]);
         $this->assertEquals('POST', $requests[0]->getMethod());
         $this->assertJsonStringEqualsJsonString($body ?: '{}', $content);
@@ -69,7 +68,6 @@ class MailchimpMailerTest extends TestCase
 
         $mailchimpSubscriber->setContactListId('1');
         $mailchimpSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
-        $mailchimpSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
         $returnCode = $mailchimpSubscriber->subscribe("jdoe@example.com", []);
 
         $requests = $client->getRequests();
@@ -85,7 +83,7 @@ class MailchimpMailerTest extends TestCase
         $this->assertCount(1, $requests);
         $content = $requests[0]->getBody()->getContents();
         $this->assertEquals('application/json', $requests[0]->getHeaders()['Content-Type'][0]);
-        $this->assertEquals('Basic ' . base64_encode(sprintf('%s:%s', '3f62c1f4-efb7-4bc7-b76d-0c2217d307b0', 'df30148e-6cda-43ae-8665-9904f5f4f12a')), $requests[0]->getHeaders()['Authorization'][0]);
+        $this->assertEquals('Basic ' . base64_encode(sprintf('%s:%s', 'anystring', '3f62c1f4-efb7-4bc7-b76d-0c2217d307b0')), $requests[0]->getHeaders()['Authorization'][0]);
         $this->assertEquals('rezozero/subscribeme', $requests[0]->getHeaders()['User-Agent'][0]);
         $this->assertEquals('POST', $requests[0]->getMethod());
         $this->assertJsonStringEqualsJsonString($body ?: '{}', $content);
@@ -107,7 +105,6 @@ class MailchimpMailerTest extends TestCase
 
         $mailchimpSubscriber->setContactListId('1');
         $mailchimpSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
-        $mailchimpSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
         $returnCode = $mailchimpSubscriber->subscribe("jdoe@example.com", []);
 
         $requests = $client->getRequests();
@@ -122,7 +119,7 @@ class MailchimpMailerTest extends TestCase
         $this->assertCount(1, $requests);
         $content = $requests[0]->getBody()->getContents();
         $this->assertEquals('application/json', $requests[0]->getHeaders()['Content-Type'][0]);
-        $this->assertEquals('Basic ' . base64_encode(sprintf('%s:%s', '3f62c1f4-efb7-4bc7-b76d-0c2217d307b0', 'df30148e-6cda-43ae-8665-9904f5f4f12a')), $requests[0]->getHeaders()['Authorization'][0]);
+        $this->assertEquals('Basic ' . base64_encode(sprintf('%s:%s', 'anystring', '3f62c1f4-efb7-4bc7-b76d-0c2217d307b0')), $requests[0]->getHeaders()['Authorization'][0]);
         $this->assertEquals('rezozero/subscribeme', $requests[0]->getHeaders()['User-Agent'][0]);
         $this->assertEquals('POST', $requests[0]->getMethod());
         $this->assertJsonStringEqualsJsonString($body ?: '{}', $content);
@@ -248,7 +245,6 @@ class MailchimpMailerTest extends TestCase
         $factory = new Psr17Factory();
         $mailchimpSubscriber = new MailchimpSubscriber($client, $factory, $factory);
         $mailchimpSubscriber->setApiKey('3f62c1f4-efb7-4bc7-b76d-0c2217d307b0');
-        $mailchimpSubscriber->setApiSecret('df30148e-6cda-43ae-8665-9904f5f4f12a');
         $emails = [
             new EmailAddress('jdoe@example.com', 'John Doe')
         ];
