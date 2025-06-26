@@ -7,7 +7,7 @@ Unified Email Service Library: A simple mailing list subscriber factory that inc
 ## Supported platforms
 
 - Mailjet
-- Mailchimp (use mandrille for transactional emails)
+- Mailchimp (use Mandrill for transactional emails)
 - Brevo (ex SendInBlue)
 - Brevo DOI (Double Opt-In) (ex SendInBlue)
 - YMLP
@@ -171,7 +171,7 @@ $subscriber->subscribe(
 
 ```php
 $subscriber = $factory->createFor('mailchimp');
-$subscriber->setApiKey('your_username');
+$subscriber->setApiKey('your_api_key');
 $subscriber->setContactListId('xxxx');
 // Set you account datacenter
 $subscriber->setDc('us19');
@@ -183,7 +183,7 @@ $subscriber->setPending();
 
 ### Mailchimp options sender transactional email
 
-Mailchimp use mandrille api for his transactional emails
+Mailchimp use Mandrill api for his transactional emails
 See https://mailchimp.com/developer/transactional/api/messages/send-using-message-template/
 
 ```php
