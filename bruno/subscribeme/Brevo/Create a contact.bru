@@ -1,0 +1,20 @@
+meta {
+  name: Create a contact
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{brevo_base_url}}/v3/contacts
+  body: none
+  auth: inherit
+}
+
+headers {
+  api-key: {{brevo_api_key}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -7,10 +7,15 @@ meta {
 get {
   url: {{brevo_base_url}}/v3/contacts/lists
   body: none
-  auth: basic
+  auth: none
 }
 
-auth:basic {
-  username: {{brevo_login}}
-  password: {{brevo_password}}
+params:query {
+  ~sort: asc
+  ~offset: 0
+  ~limit: 
+}
+
+headers {
+  api-key: {{brevo_api_key}}
 }

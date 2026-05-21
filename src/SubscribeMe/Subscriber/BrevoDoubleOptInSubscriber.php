@@ -37,10 +37,15 @@ final class BrevoDoubleOptInSubscriber extends BrevoSubscriber
         $body = [
             'email' => $email,
             'includeListIds' => $this->getListsId(),
-            'attributes' => $this->getAttributes($options, $userConsents),
             'templateId' => $this->templateId,
             'redirectionUrl' => $this->redirectionUrl,
         ];
+
+        $attributes = $this->getAttributes($options, $userConsents);
+
+        if (count($attributes) > 0) {
+            $body['attributes'] = $attributes;
+        }
 
         return $this->doSubscribe(
             'https://api.brevo.com/v3/contacts/doubleOptinConfirmation',

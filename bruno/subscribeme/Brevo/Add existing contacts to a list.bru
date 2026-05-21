@@ -11,13 +11,17 @@ post {
 }
 
 params:path {
-  listId: 
+  listId: 4
+}
+
+headers {
+  api-key: {{brevo_api_key}}
 }
 
 body:json {
   {
     "emails": [
-      "john.smith@contact.com"
+      "eliot@rezo-zero.com"
     ]
   }
 }

@@ -140,8 +140,13 @@ class BrevoSubscriber extends AbstractSubscriber
             'updateEnabled' => true,
             'email' => $email,
             'listIds' => $this->getListsId(),
-            'attributes' => $this->getAttributes($options, $userConsents),
         ];
+
+        $attributes = $this->getAttributes($options, $userConsents);
+
+        if (count($attributes) > 0) {
+            $body['attributes'] = $attributes;
+        }
 
         return $this->doSubscribe(
             'https://api.brevo.com/v3/contacts',
