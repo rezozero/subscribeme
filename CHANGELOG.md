@@ -2,6 +2,12 @@
 
 All notable changes to project will be documented in this file.
 
+## [2.2.1](https://github.com/rezozero/subscribeme/compare/2.2.0...2.2.1) - 2026-05-21
+
+### Bug Fixes
+
+- refactor brevo attributes logic - ([4772e66](https://github.com/rezozero/subscribeme/commit/4772e665a58fc552b239fafbd9107db89fe1b231)) - eliot lauger
+
 ## [2.2.0](https://github.com/rezozero/subscribeme/compare/2.1.0...2.2.0) - 2025-06-24
 
 ### Refactor
