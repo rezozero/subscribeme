@@ -84,7 +84,7 @@ class BrevoSubscriber extends AbstractSubscriber
     }
 
     /**
-     * @throws JsonException
+     * @throws JsonException|ApiResponseException
      */
     protected function doSubscribe(string $uri, array $body): bool|int
     {
