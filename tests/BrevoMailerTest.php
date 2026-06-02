@@ -10,6 +10,7 @@ use JsonException;
 use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use SubscribeMe\Exception\ApiCredentialsException;
+use SubscribeMe\Exception\ApiResponseException;
 use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Subscriber\BrevoSubscriber;
 use SubscribeMe\ValueObject\EmailAddress;
@@ -158,6 +159,56 @@ class BrevoMailerTest extends TestCase
         $this->assertEquals('POST', $requests[0]->getMethod());
         $this->assertJsonStringEqualsJsonString($body ?: '{}', $content);
         $this->assertEquals('api.brevo.com', $requests[0]->getUri()->getHost());
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function testSubscribeThrowsOnUnauthorized(): void
+    {
+        $client = new Client();
+        $factory = new Psr17Factory();
+
+        $client->setDefaultResponse(
+            new Response(401, [], json_encode(['message' => 'IP address not authorized'], JSON_THROW_ON_ERROR))
+        );
+
+        $brevoSubscriber = new BrevoSubscriber($client, $factory, $factory);
+        $brevoSubscriber->setContactListId('3,5');
+        $brevoSubscriber->setApiKey('928f601b-5476-4480-8eb0-c8d979f3b68f');
+
+        try {
+            $brevoSubscriber->subscribe('elly@example.com', []);
+            $this->fail('Expected ApiResponseException was not thrown.');
+        } catch (ApiResponseException $exception) {
+            $this->assertSame(401, $exception->getStatusCode());
+            $this->assertSame('IP address not authorized', $exception->getResponseBody()['message']);
+        }
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function testUnsubscribeThrowsOnUnauthorized(): void
+    {
+        $client = new Client();
+        $factory = new Psr17Factory();
+
+        $client->setDefaultResponse(
+            new Response(401, [], json_encode(['message' => 'IP address not authorized'], JSON_THROW_ON_ERROR))
+        );
+
+        $brevoSubscriber = new BrevoSubscriber($client, $factory, $factory);
+        $brevoSubscriber->setContactListId('3');
+        $brevoSubscriber->setApiKey('928f601b-5476-4480-8eb0-c8d979f3b68f');
+
+        try {
+            $brevoSubscriber->unsubscribe('elly@example.com');
+            $this->fail('Expected ApiResponseException was not thrown.');
+        } catch (ApiResponseException $exception) {
+            $this->assertSame(401, $exception->getStatusCode());
+            $this->assertSame('IP address not authorized', $exception->getResponseBody()['message']);
+        }
     }
 
     /**

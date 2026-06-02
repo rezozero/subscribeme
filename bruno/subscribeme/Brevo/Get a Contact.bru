@@ -1,0 +1,29 @@
+meta {
+  name: Get a Contact
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{brevo_base_url}}/v3/contacts/:identifier?startDate=&endDate=
+  body: none
+  auth: none
+}
+
+params:query {
+  ~startDate:
+  ~endDate:
+}
+
+params:path {
+  identifier:
+}
+
+headers {
+  api-key: {{brevo_api_key}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
