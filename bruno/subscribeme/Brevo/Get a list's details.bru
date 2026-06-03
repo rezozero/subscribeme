@@ -1,0 +1,24 @@
+meta {
+  name: Get a list's details
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{brevo_base_url}}/v3/contacts/lists/:listId
+  body: none
+  auth: none
+}
+
+params:path {
+  listId: 4
+}
+
+headers {
+  api-key: {{brevo_api_key}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

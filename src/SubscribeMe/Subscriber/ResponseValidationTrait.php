@@ -16,6 +16,6 @@ trait ResponseValidationTrait
         }
         /** @var array $result */
         $result = json_decode($response->getBody()->getContents(), true);
-        throw new ApiResponseException($result);
+        throw new ApiResponseException($result, null, $response->getStatusCode());
     }
 }

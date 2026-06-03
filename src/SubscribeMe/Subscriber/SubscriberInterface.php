@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SubscribeMe\Subscriber;
 
 use JsonException;
+use SubscribeMe\Exception\ApiResponseException;
 use SubscribeMe\Exception\UnsupportedTransactionalEmailPlatformException;
 use SubscribeMe\Exception\UnsupportedUnsubscribePlatformException;
 use SubscribeMe\GDPR\UserConsent;
@@ -25,14 +26,14 @@ interface SubscriberInterface
      * @param array       $options
      * @param UserConsent[] $userConsents
      * @return bool|int Contact ID if succeeded or false
-     * @throws JsonException
+     * @throws JsonException|ApiResponseException
      */
     public function subscribe(string $email, array $options, array $userConsents = []): bool|int;
 
     /**
      * @param string $email
      * @return bool true on succeeded or false
-     * @throws JsonException|UnsupportedUnsubscribePlatformException
+     * @throws JsonException|UnsupportedUnsubscribePlatformException|ApiResponseException
      */
     public function unsubscribe(string $email): bool;
 
