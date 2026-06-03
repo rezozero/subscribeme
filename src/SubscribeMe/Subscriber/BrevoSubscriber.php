@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace SubscribeMe\Subscriber;
 
-use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
 use SubscribeMe\Exception\ApiResponseException;
 use SubscribeMe\Exception\CannotSendTransactionalEmailException;
 use SubscribeMe\Exception\CannotSubscribeException;
 use SubscribeMe\Exception\ApiCredentialsException;
-use SubscribeMe\Exception\UnsupportedUnsubscribePlatformException;
 use SubscribeMe\GDPR\UserConsent;
 use SubscribeMe\ValueObject\EmailAddress;
 
@@ -84,7 +82,7 @@ class BrevoSubscriber extends AbstractSubscriber
     }
 
     /**
-     * @throws JsonException|ApiResponseException
+     * @throws \JsonException|ApiResponseException
      */
     protected function doSubscribe(string $uri, array $body): bool|int
     {
@@ -132,7 +130,7 @@ class BrevoSubscriber extends AbstractSubscriber
              */
             /** @var array $body */
             $body = json_decode($res->getBody()->getContents(), true) ?? [];
-            throw new ApiResponseException($body, $res->getStatusCode());
+            throw new ApiResponseException($body, null, $res->getStatusCode());
         } catch (ClientExceptionInterface $exception) {
             throw new CannotSubscribeException($exception->getMessage(), $exception);
         }
@@ -259,7 +257,7 @@ class BrevoSubscriber extends AbstractSubscriber
              */
             /** @var array $body */
             $body = json_decode($res->getBody()->getContents(), true) ?? [];
-            throw new ApiResponseException($body, $res->getStatusCode());
+            throw new ApiResponseException($body, null, $res->getStatusCode());
         } catch (ClientExceptionInterface $exception) {
             throw new CannotSubscribeException($exception->getMessage(), $exception);
         }

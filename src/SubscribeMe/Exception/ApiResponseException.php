@@ -8,7 +8,7 @@ use Throwable;
 
 final class ApiResponseException extends \RuntimeException
 {
-    public function __construct(private array $responseBody, private ?int $statusCode = null, Throwable $previous = null)
+    public function __construct(private array $responseBody, ?Throwable $previous = null, private ?int $statusCode = null)
     {
         parent::__construct('Api response error', 0, $previous);
     }
