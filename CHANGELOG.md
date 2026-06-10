@@ -2,6 +2,12 @@
 
 All notable changes to project will be documented in this file.
 
+## [2.2.2](https://github.com/rezozero/subscribeme/compare/2.2.1...2.2.2) - 2026-06-10
+
+### Bug Fixes
+
+- surface unexpected Brevo API status codes (401/403/429/5xx) - ([d12a34e](https://github.com/rezozero/subscribeme/commit/d12a34ed2ac74b5a0d034e4c4e4ffd2fd6c94e31)) - Eliot
+
 ## [2.2.1](https://github.com/rezozero/subscribeme/compare/2.2.0...2.2.1) - 2026-05-21
 
 ### Bug Fixes
